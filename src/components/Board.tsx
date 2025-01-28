@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Tile } from "./Tile";
 import { BoardState, ConstraintType } from "../types/types";
-import { changeBoardTileIcons, generateRandomBoardState, getAllViolations, getNextTileIcon, indexToCoordinate, isVerticalConstraint, isWinState, updateBoardTileStateErrors } from "../utils/utils";
+import { changeBoardTileIcons, generateRandomValidBoardState, getNextTileIcon, indexToCoordinate } from "../utils/utils";
+import { getAllViolations, isWinState, updateBoardTileStateErrors } from "../utils/rules";
 
 const generateDarkColor = () => {
   const r = Math.floor(Math.random() * 156);
@@ -18,18 +19,24 @@ const Board = ({
 	columns: number;
 }) => {
 
-	const [boardState, setBoardState] = useState<BoardState>(
-		generateRandomBoardState(rows, columns)
-	)
+	const [boardState, setBoardState] = useState<BoardState>(() => 
+		generateRandomValidBoardState(rows, columns)
+	);
 
-    console.log("Generated:");
-    console.log(boardState);
+    // console.log("Generated:");
+    // console.log(boardState);
 
 	let boardColor = generateDarkColor();
 	if (isWinState(boardState)) {
 		console.log("WIN STATE!");
 		boardColor = `rgb(255,255,255)`
 	}
+
+	// console.log("\n\n\n")
+	// console.log("EVERY POSSIBLE SOLUTION EVER")
+	// const everything = generateAllValidSolutions(boardState)
+	// console.log(everything, everything.length);
+	// console.log("DONE WITH ALL POSSIBLE SOLUTIONS EVER")
 
 	return (
 		<div className="grid"
@@ -40,6 +47,9 @@ const Board = ({
 		}}>
 			{boardState.tiles.map((tileState, i) => (
 				<Tile key={i} startState={tileState} onClick={() => {
+					if (tileState.locked) {
+						return;
+					}
 					let newBoardState = changeBoardTileIcons(boardState, [ [ indexToCoordinate(boardState, i), getNextTileIcon(tileState.iconType) ] ])
 					newBoardState = updateBoardTileStateErrors(newBoardState);
 					setBoardState(newBoardState);
@@ -56,28 +66,15 @@ const Board = ({
 				let finalx = basex;
 				let finaly = basey;
 
-				if (isVerticalConstraint(constraint)) {
-					// find the row line to be on top of, centered horizontally
-					const midrow = (constraint.coordinate1.row + constraint.coordinate2.row) / 2
-					const midcol = (constraint.coordinate1.column + constraint.coordinate2.column) / 2
-					// finalx += constraint.coordinate1.column * pxcell
-					finalx += midcol * pxcell + (pxcell / 2)
-					finaly += midrow * pxcell + (pxcell / 2)
-				} else {
-					const midrow = (constraint.coordinate1.row + constraint.coordinate2.row) / 2
-					const midcol = (constraint.coordinate1.column + constraint.coordinate2.column) / 2
-					// finalx += constraint.coordinate1.column * pxcell
-					finalx += midcol * pxcell + (pxcell / 2)
-					finaly += midrow * pxcell + (pxcell / 2)
-					// const midcol = (constraint.coordinate1.column + constraint.coordinate2.column) / 2
-					// finalx += midcol * pxcell
-					// finaly += constraint.coordinate1.row * pxcell
-				}
+				const midrow = (constraint.coordinate1.row + constraint.coordinate2.row) / 2
+				const midcol = (constraint.coordinate1.column + constraint.coordinate2.column) / 2
+				finalx += midcol * pxcell + (pxcell / 2)
+				finaly += midrow * pxcell + (pxcell / 2)
 				
 				if (constraint.constraintType === ConstraintType.EQUAL) {
 					return (
 						<div
-							className="constraint text-2xl text-center"
+							className="constraint text-xl text-center"
 							key={i}
 							style={{
 								transform: `translateX(${finalx}px) translateY(${finaly}px)`,
@@ -89,7 +86,7 @@ const Board = ({
 				} else if (constraint.constraintType === ConstraintType.OPPOSITE) {
 					return (
 						<div
-							className="constraint text-2xl text-center"
+							className="constraint text-xl text-center"
 							key={i}
 							style={{
 								transform: `translateX(${finalx}px) translateY(${finaly}px)`,

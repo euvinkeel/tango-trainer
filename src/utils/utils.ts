@@ -1,5 +1,6 @@
 import * as constants from "./constants";
-import { Rule, BoardState, TileIconType, TileState, ConstraintType, Constraint, Coordinate, RuleViolation } from "../types/types";
+import { BoardState, TileIconType, TileState, ConstraintType, Constraint, Coordinate } from "../types/types";
+import { getAllViolations } from "./rules";
 
 export const chooseRandom = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 export const chooseRandomWithDist = <T>(arr: T[], probabilityDist: number[]): T => {
@@ -26,6 +27,71 @@ export const shuffle = <T>(arr: T[]): T[] => {
 	}
 	return shuffled;
 }
+
+// export const generatePossible = (boardState: BoardState, maxSolutions: number = 10): TileIconType[][] => {
+
+export const generateAllValidSolutions = (boardState: BoardState, maxSolutions: number = 10): TileIconType[][] => {
+	const solutions: TileIconType[][] = [];
+	const board = structuredClone(boardState);
+
+	const backtrack = (index: number) => {
+		if (solutions.length >= maxSolutions) {
+			return;
+		}
+
+		if (getAllViolations(board).length > 0) {
+			return;
+		}
+
+		if (index >= board.tiles.length) {
+			solutions.push(board.tiles.map((tile) => tile.iconType));
+			return
+		}
+
+		if (board.tiles[index].locked || board.tiles[index].iconType !== TileIconType.EMPTY) {
+			backtrack(index + 1); // just skip ts
+			return
+		}
+
+		const iconorder = shuffle([TileIconType.MOON, TileIconType.SUN]);
+		for (const icon of iconorder) {
+			board.tiles[index].iconType = icon;
+			backtrack(index + 1); // may or may not be a good square
+		}
+		board.tiles[index].iconType = TileIconType.EMPTY; // reset our square and back up
+		return;
+	}
+
+	backtrack(0)
+	return solutions;
+}
+
+// export const generateValidRowTileIcons = (columns: number): TileIconType[] => {
+// 	const currRow: TileIconType[] = []
+// 	const moonsLeft = columns // 2;
+// 	const sunsLeft = columns // 2;
+
+
+// 	for (let i = 0; i < columns; i++) {
+// 		if (i < 2) {
+// 			currRow.push(chooseRandom([TileIconType.SUN, TileIconType.MOON]))
+// 		} else {
+// 			// we have two icons before us.
+
+
+// 			if (currRow[i - 1] == currRow[i - 2]) {
+// 				// two icons before us are the same. we can only add the opposite icon.
+// 				currRow.push(currRow[i - 1] == TileIconType.SUN ? TileIconType.MOON : TileIconType.SUN)
+// 			} else {
+// 				currRow.push(chooseRandom([TileIconType.SUN, TileIconType.MOON]))
+// 			}
+// 		}
+// 	}
+// 	return currRow
+// }
+// export const generateValidTileStates = (): TileState[] => {
+// 	// Generate a list of valid tiles without constraints.
+// }
 
 export const generateRandomTileState = (): TileState => {
 	return {
@@ -66,16 +132,55 @@ export const generateRandomConstraint = (rows: number, columns: number): Constra
 	throw new Error("Failed to generate constraint");
 }
 
+export const getIconTypeAsEmoji = (iconType: TileIconType) => iconType === TileIconType.EMPTY ? "⬜" : iconType === TileIconType.SUN ? "☀️" : "🔵";
+export const getBoardStateAsString = (boardState: BoardState) => {
+	let out = "";
+	for (const row of getRows(boardState)) {
+		out += row.map((tile) => getIconTypeAsEmoji(tile.iconType)).join("") + "\n";
+	}
+	return out;
+}
+
+export const generateRandomValidBoardState = (
+	rows: number = constants.DEFAULT_BOARD_HEIGHT,
+	columns: number = constants.DEFAULT_BOARD_WIDTH,
+	constraintAmount: number = 5,
+): BoardState => {
+	console.log("Generating a random valid board state starting now");
+	let newBoardState = generateRandomBoardState(rows, columns, constraintAmount);
+	let solutions: TileIconType[][] = [];
+
+	while (solutions.length !== 1)  {
+		console.log("nope, throw that away");
+		newBoardState = generateRandomBoardState(rows, columns, constraintAmount);
+		solutions = generateAllValidSolutions(newBoardState, 2);
+	}
+
+	console.log("YAY :D got one solution for board:");
+	const solutionState = structuredClone(newBoardState);
+	console.log(getBoardStateAsString(solutionState));
+	solutions[0].forEach((tileIcon, index) => {
+		solutionState.tiles[index].iconType = tileIcon;
+	})
+
+	console.log(getBoardStateAsString(solutionState));
+
+	return newBoardState
+}
+
 export const generateRandomBoardState = (
 	rows: number = constants.DEFAULT_BOARD_HEIGHT,
-	columns: number = constants.DEFAULT_BOARD_WIDTH
+	columns: number = constants.DEFAULT_BOARD_WIDTH,
+	constraintAmount: number = 5,
 ): BoardState => {
 	const tiles = Array(rows * columns)
 		.fill({})
 		.map(generateRandomTileState);
+	tiles.forEach((tile) => {
+		tile.locked = tile.iconType !== TileIconType.EMPTY;
+	})
 	const takenCoordinates = new Set<string>();
-	// const constraints = Array(getRandInt(1, Math.min(rows, columns)))
-	const constraints = Array(4)
+	const constraints = Array(constraintAmount)
 		.fill({})
 		.map(() => {
 			let newConstraint = generateRandomConstraint(rows, columns)
@@ -90,6 +195,7 @@ export const generateRandomBoardState = (
 	return { tiles, constraints, rows, columns };
 }
 
+export const isVerticalConstraint = (constraint: Constraint) => constraint.coordinate1.column === constraint.coordinate2.column;
 export const coordinateToIndex = (boardState: BoardState, coord: Coordinate): number => (coord.row * boardState.columns) + coord.column
 export const indexToCoordinate = (boardState: BoardState, index: number): Coordinate => ({ row: Math.floor(index / boardState.columns), column: index % boardState.columns })
 export const getNextTileIcon = (currentTileIcon: TileIconType): TileIconType => (currentTileIcon === TileIconType.EMPTY) ? TileIconType.SUN : (currentTileIcon === TileIconType.SUN) ? TileIconType.MOON : TileIconType.EMPTY
@@ -122,156 +228,7 @@ export const changeBoardTileIcons = (boardState: BoardState, changes: [Coordinat
 	return { ...boardState, tiles: newTiles };
 }
 
-export const updateBoardTileStateErrors = (boardState: BoardState): BoardState => {
-	const violations = getAllViolations(boardState);
-	const errorCoordinates = violations.flatMap(violation => violation.highlightCoordinates);
-	const newTiles = boardState.tiles.map((tile, index) => {
-		const coord = indexToCoordinate(boardState, index);
-		const isError = errorCoordinates.some(errorCoord => errorCoord.row === coord.row && errorCoord.column === coord.column);
-		return { ...tile, error: isError };
-	});
-	return { ...boardState, tiles: newTiles };
-}
-
-export const isVerticalConstraint = (constraint: Constraint) => constraint.coordinate1.column === constraint.coordinate2.column;
-export const getAllViolations = (boardState: BoardState): RuleViolation[] => ruleset.flatMap(rule => rule.getViolations(boardState));
-
-export const ruleset: Rule[] = [
-	{
-		description: "Every row and column must have equal amounts of suns and moons.",
-		getViolations: (boardState: BoardState): RuleViolation[] => {
-			const violations: RuleViolation[] = [];
-			getRows(boardState).forEach((row, rowIndex) => {
-				const { [TileIconType.EMPTY]: emptycount, [TileIconType.SUN]: suncount, [TileIconType.MOON]: mooncount } = getTileIconCounts(row);
-				if (suncount > (row.length / 2)) {
-					violations.push({
-						highlightCoordinates: getRowCoordinates(boardState, rowIndex),
-						reason: `Row ${rowIndex} has too many suns.`
-					});
-					return;
-				}
-				if (mooncount > (row.length / 2)) {
-					violations.push({
-						highlightCoordinates: getRowCoordinates(boardState, rowIndex),
-						reason: `Row ${rowIndex} has too many moons.`
-					});
-					return;
-				}
-				if (emptycount > 0) {
-					return;
-				}
-				if (suncount !== mooncount) {
-					violations.push({
-						highlightCoordinates: getRowCoordinates(boardState, rowIndex),
-						reason: `Row ${rowIndex} does not have equal amounts of suns and moons.`
-					});
-					return;
-				}
-			});
-			getColumns(boardState).forEach((column, columnIndex) => {
-				const { [TileIconType.EMPTY]: emptycount, [TileIconType.SUN]: suncount, [TileIconType.MOON]: mooncount } = getTileIconCounts(column);
-				if (suncount > (column.length / 2)) {
-					violations.push({
-						highlightCoordinates: getColumnCoordinates(boardState, columnIndex),
-						reason: `Column ${columnIndex} has too many suns.`
-					});
-					return;
-				}
-				if (mooncount > (column.length / 2)) {
-					violations.push({
-						highlightCoordinates: getColumnCoordinates(boardState, columnIndex),
-						reason: `Column ${columnIndex} has too many moons.`
-					});
-					return;
-				}
-				if (emptycount > 0) {
-					return;
-				}
-				if (suncount !== mooncount) {
-					violations.push({
-						highlightCoordinates: getColumnCoordinates(boardState, columnIndex),
-						reason: `Column ${columnIndex} does not have equal amounts of suns and moons.`
-					});
-				}
-			});
-			return violations;
-		}
-	},
-	{
-		description: "No three consecutive equivalent tiles in rows or columns.",
-		getViolations: (boardState: BoardState): RuleViolation[] => {
-			const violations: RuleViolation[] = [];
-			
-			// Check rows
-			getRows(boardState).forEach((row, rowIndex) => {
-				range(0, row.length - 2).forEach(i => {
-					if (row[i].iconType !== TileIconType.EMPTY && row[i].iconType === row[i + 1].iconType && row[i + 1].iconType === row[i + 2].iconType) {
-						violations.push({
-							highlightCoordinates: getRowCoordinates(boardState, rowIndex),
-							reason: `Row ${rowIndex} has 3 consecutive ${row[i].iconType} tiles.`
-						});
-					}
-				});
-			});
-
-			// Check columns
-			getColumns(boardState).forEach((column, columnIndex) => {
-				range(0, column.length - 2).forEach(i => {
-					if (column[i].iconType !== TileIconType.EMPTY && column[i].iconType === column[i + 1].iconType && column[i + 1].iconType === column[i + 2].iconType) {
-						violations.push({
-							highlightCoordinates: getColumnCoordinates(boardState, columnIndex),
-							reason: `Column ${columnIndex} has 3 consecutive ${column[i].iconType} tiles.`
-						});
-					}
-				});
-			});
-
-			return violations;
-		}
-	},
-	{
-		description: "Two tiles with an X between them must be opposites.",
-		getViolations: (boardState: BoardState): RuleViolation[] => {
-			const violations: RuleViolation[] = [];
-			boardState.constraints.forEach((constraint) => {
-				if (constraint.constraintType == ConstraintType.OPPOSITE) {
-					const tileType1 = boardState.tiles[coordinateToIndex(boardState, constraint.coordinate1)]
-					const tileType2 = boardState.tiles[coordinateToIndex(boardState, constraint.coordinate2)]
-					if (tileType1.iconType !== TileIconType.EMPTY && tileType2.iconType !== TileIconType.EMPTY && tileType1.iconType === tileType2.iconType) {
-						violations.push({
-							highlightCoordinates: [constraint.coordinate1, constraint.coordinate2],
-							reason: `Tiles at ${constraint.coordinate1} and ${constraint.coordinate2} must be opposite.`
-						});
-					}
-				}
-			})
-			return violations
-		}
-	},
-	{
-		description: "Two tiles with an = between them must be the same.",
-		getViolations: (boardState: BoardState): RuleViolation[] => {
-			const violations: RuleViolation[] = [];
-			boardState.constraints.forEach((constraint) => {
-				if (constraint.constraintType == ConstraintType.EQUAL) {
-					const tileType1 = boardState.tiles[coordinateToIndex(boardState, constraint.coordinate1)]
-					const tileType2 = boardState.tiles[coordinateToIndex(boardState, constraint.coordinate2)]
-					if (tileType1.iconType !== TileIconType.EMPTY && tileType2.iconType !== TileIconType.EMPTY && tileType1.iconType !== tileType2.iconType) {
-						violations.push({
-							highlightCoordinates: [constraint.coordinate1, constraint.coordinate2],
-							reason: `Tiles at ${constraint.coordinate1} and ${constraint.coordinate2} must be the same.`
-						});
-					}
-				}
-			})
-			return violations
-		}
-	},
-];
-
-export const isWinState = (boardState: BoardState): boolean => {
-	if (boardState.tiles.some((tile) => tile.iconType === TileIconType.EMPTY)) {
-		return false;
-	}
-	return getAllViolations(boardState).length === 0;
+export const changeBoardTileIconIndex = (boardState: BoardState, index: number, iconType: TileIconType): BoardState => {
+	const newBoardState = { ...boardState, tiles: boardState.tiles.map((tile, i) => i === index ? { ...tile, iconType } : tile) };
+	return newBoardState
 }

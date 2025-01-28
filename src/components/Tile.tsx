@@ -38,7 +38,7 @@ export const Tile = ({startState={
     return (
         <div className='tile' style={{
             position: 'relative',
-            backgroundColor: startState.error ? `rgb(255, 0, 0)` : `rgb(255, 255, 255)`
+            backgroundColor: startState.error ? `rgb(255, 0, 0)` : startState.locked ? `rgb(150, 150, 150)` : `rgb(255, 255, 255)`
         }}>
             <button 
             ref={highlightRef}
