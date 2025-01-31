@@ -1,5 +1,5 @@
-import { Rule, BoardState, TileIconType, ConstraintType, RuleViolation } from "../types/types";
-import { getRows, getColumns, getTileIconCounts, getRowCoordinates, getColumnCoordinates, coordinateToIndex, range, indexToCoordinate } from "./utils";
+import { Rule, BoardState, TileIconType, ConstraintType, RuleViolation, Coordinate } from "../types/types";
+import { getRows, getColumns, getTileIconCounts, getRowCoordinates, getColumnCoordinates, coordinateToIndex, range, indexToCoordinate, getBoardStateAsString, chooseRandom, createBoardString } from "./utils";
 
 export const getAllViolations = (boardState: BoardState): RuleViolation[] => ruleset.flatMap(rule => rule.getViolations(boardState));
 
@@ -20,42 +20,239 @@ export const updateBoardTileStateErrors = (boardState: BoardState): BoardState =
 	});
 	return { ...boardState, tiles: newTiles };
 }
+export const isIndexEditable = (boardState: BoardState, index: number): boolean => boardState.tiles[index].locked === false && boardState.tiles[index].iconType === TileIconType.EMPTY;
+export const isCoordinateEditable = (boardState: BoardState, coordinate: Coordinate): boolean => isIndexEditable(boardState, coordinateToIndex(boardState, coordinate));
 
-// export const heuristics: Heuristic[] = [
-// 	{
-// 		description: "Place opposites next to two equal cells."
-// 	},
-// 	{
-// 		description: "Place opposites next to two equal-constrained cells."
-// 	},
-// 	{
-// 		// checks for 	O _ _ _ _ O pattern,
-// 		// 			the _ _ _ * O O pattern,
-// 		description: "Rows or columns must prevent possibilities of 3 consecutive equal cells."
-// 	},
-// 	{
-// 		description: "If there are three of the same signs in a row or column, every other cell must be the opposite sign."
-// 	},
-// 	{
-// 		description: "If there is a blank space between two cells of the same sign, the middle blank space must be the opposite sign."
-// 	},
-// 	{
-// 		// checks for 	O _ * _x_ * pattern, which must become O O * _x_ * because of the opposite sign
-// 		// checks for 	O * _ _x_ * pattern, which must become O * O _x_ * because of the opposite sign
-// 		// checks for 	_ * _ _x_ * pattern, which must become O * O _x_ * because of the opposite sign
-// 		// this is because the opposing sign gaurantees adding one to each sign's count, and if one sign already has two counts,
-// 		// all blanks that are not having the opposing relation are solved for.
-// 		description: "If there's two of the same signs and an unfilled opposite relation, the remaining spaces must be the opposite signs of the two existing signs."
-// 	},
+export const testIfCoordinateIsDeducible = (boardState: BoardState, coordinate: Coordinate): [boolean, TileIconType?] => {
 
-// 	// commonality: you check the rows and columns, or smaller local adjacent cells.
-// 	// adjacent cell checks are easy enough.
-// 	// for rows and column analysis, we must use constraints that are *WITHIN* that very row/column. (constraints connecting two different rows/columns don't help)
-// 	// Within that row or column, * at least one square * will have only one possibility lest the entire row/column becomes invalid.
-// 	// So we must generate all possible fill-ins of all blank spaces within a row/column, and check their validities.
-// 	// If for ALL VALID generations of a row/column fill-ins, there is a space that is -- across all of them -- the same sign, we have our answer there
-	
-// ]
+	let debugmode;
+	debugmode = false;
+	debugmode = false;
+	if (coordinate.row == 5 && coordinate.column == 5) {
+		console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndebug mode for this coordinate:");
+		console.log(getBoardStateAsString(boardState, coordinate));
+		debugmode = true;
+	}
+
+	// Assume our current setup in boardState.
+	// make immutable to be safe...
+	const newBoardState = structuredClone(boardState);
+
+	// Fill in the square, see if we can randomly generate its row & column's blank tiles without violating rules.
+	const index = coordinateToIndex(newBoardState, coordinate);
+
+	const hasValidRow = (coordIdx: number, coordsToExplore: Coordinate[]): boolean => {
+		if (getAllViolations(newBoardState).length > 0) {
+			return false;
+		}
+		if (coordIdx >= coordsToExplore.length) {
+			return true;
+		}
+		const currCoord = coordsToExplore[coordIdx];
+		const actualIndex = coordinateToIndex(newBoardState, currCoord);
+		if (isIndexEditable(newBoardState, actualIndex)) {
+			newBoardState.tiles[actualIndex].iconType = TileIconType.SUN;
+			const sunpath = hasValidRow(coordIdx + 1, coordsToExplore);
+			if (sunpath) {
+				newBoardState.tiles[actualIndex].iconType = TileIconType.EMPTY;
+				return sunpath;
+			}
+			newBoardState.tiles[actualIndex].iconType = TileIconType.MOON;
+			const moonpath = hasValidRow(coordIdx + 1, coordsToExplore);
+			if (moonpath) {
+				newBoardState.tiles[actualIndex].iconType = TileIconType.EMPTY;
+				return moonpath;
+			}
+			newBoardState.tiles[actualIndex].iconType = TileIconType.EMPTY;
+			return false;
+		} else {
+			return hasValidRow(coordIdx + 1, coordsToExplore);
+		}
+	}
+	// bug: must explroe all remaining BLANK tiles not just going linearly
+	const hasValidCol = (coordIdx: number, coordsToExplore: Coordinate[]): boolean => {
+		if (debugmode) {
+			console.log("HVC current state:", coordIdx, coordsToExplore[coordIdx]);
+			console.log(getBoardStateAsString(newBoardState, coordsToExplore[coordIdx]));
+		}
+		if (getAllViolations(newBoardState).length > 0) {
+			return false;
+		}
+		if (coordIdx >= coordsToExplore.length) {
+			return true;
+		}
+		const currCoord = coordsToExplore[coordIdx];
+		const actualIndex = coordinateToIndex(newBoardState, currCoord);
+		if (isIndexEditable(newBoardState, actualIndex)) {
+			newBoardState.tiles[actualIndex].iconType = TileIconType.SUN;
+			const sunpath = hasValidCol(coordIdx + 1, coordsToExplore);
+			if (sunpath) {
+				newBoardState.tiles[actualIndex].iconType = TileIconType.EMPTY;
+				return sunpath;
+			}
+			newBoardState.tiles[actualIndex].iconType = TileIconType.MOON;
+			const moonpath = hasValidCol(coordIdx + 1, coordsToExplore);
+			if (moonpath) {
+				newBoardState.tiles[actualIndex].iconType = TileIconType.EMPTY;
+				return moonpath;
+			}
+			newBoardState.tiles[actualIndex].iconType = TileIconType.EMPTY;
+			return false;
+		} else {
+			return hasValidCol(coordIdx + 1, coordsToExplore);
+		}
+	}
+
+
+	// At this coordinate,
+	// to explore the ROW before hasValidRow is called,
+	// preapre a traversal list of all *columns* (coordinate format)
+	// check that coordinate
+	const getCoordsToExploreInColumn = (column: number): Coordinate[] => {
+		const coordsToExploreInColumn: Coordinate[] = [];
+		for (let i = 0; i < newBoardState.rows; i++) {
+			const checkCoordinate = { row: i, column: column };
+			if (isCoordinateEditable(newBoardState, checkCoordinate)) {
+				coordsToExploreInColumn.push(checkCoordinate);
+			}
+		}
+		return coordsToExploreInColumn;
+	}
+	const getCoordsToExploreInRow = (row: number): Coordinate[] => {
+		const coordsToExploreInRow: Coordinate[] = [];
+		for (let i = 0; i < newBoardState.columns; i++) {
+			const checkCoordinate = { row: row, column: i };
+			if (isCoordinateEditable(newBoardState, checkCoordinate)) {
+				coordsToExploreInRow.push(checkCoordinate);
+			}
+		}
+		return coordsToExploreInRow;
+	}
+
+	if (debugmode) {
+		console.log("TIME FOR SUN CHECK we are about to check ", coordinate);
+		console.log(getBoardStateAsString(newBoardState));
+		console.log(getBoardStateAsString(newBoardState, coordinate));
+		console.log("calling hasValidCol")
+	}
+	newBoardState.tiles[index].iconType = TileIconType.SUN;
+	const sunIsPossible = hasValidRow(0, getCoordsToExploreInRow(coordinate.row)) && hasValidCol(0, getCoordsToExploreInColumn(coordinate.column));
+
+	if (debugmode) {
+		if (sunIsPossible) {
+			console.log("we have determined a SUN IS possible")
+		} else {
+			console.log("we have determined a SUN IS NOT possible")
+		}
+	}
+	newBoardState.tiles[index].iconType = TileIconType.MOON;
+	if (debugmode) {
+		console.log("okay we'll place a moon here", coordinate);
+		console.log(getBoardStateAsString(newBoardState, coordinate));
+		console.log(getBoardStateAsString(newBoardState));
+		console.log("let's see if we can fit a moon on this column!!!! hopefully NOT!!!!!!");
+	}
+	const moonIsPossible = hasValidRow(0, getCoordsToExploreInRow(coordinate.row)) && hasValidCol(0, getCoordsToExploreInColumn(coordinate.column));
+
+	if (debugmode) {
+		if (moonIsPossible) {
+			console.log("we have determined a MOON IS possible")
+		} else {
+			console.log("we have determined a MOON IS NOT possible")
+		}
+	}
+	if (debugmode && sunIsPossible) console.log("SUN")
+	if (debugmode && moonIsPossible) console.log("MOON")
+
+	if ((sunIsPossible && moonIsPossible) || !(sunIsPossible || moonIsPossible) ) {
+		return [false];
+	}
+	if (sunIsPossible) {
+		return [true, TileIconType.SUN];
+	}
+	if (moonIsPossible) {
+		return [true, TileIconType.MOON];
+	}
+	return [false];
+}
+
+export const getSolveableCoordinates = (boardState: BoardState): [Coordinate, TileIconType][] => {
+	const solveableCoordinates: [Coordinate, TileIconType][] = [];
+
+	for (let row = 0; row < boardState.rows; row++) {
+		for (let col = 0; col < boardState.columns; col++) {
+			const coordinate = { row: row, column: col };
+			const index = coordinateToIndex(boardState, coordinate);
+			if (isIndexEditable(boardState, index)) {
+				const [isDeducible, iconType] = testIfCoordinateIsDeducible(boardState, coordinate);
+				if (isDeducible && iconType) {
+					solveableCoordinates.push([coordinate, iconType]);
+				}
+			}
+		}
+	}
+
+	if (solveableCoordinates.length === 0) {
+		console.log("No solveable coordinates found");
+	} else {
+		console.log("Solveable coordinates: ");
+		for (const solveableCoordinate of solveableCoordinates) {
+			console.log(`We can solve [${solveableCoordinate[0].row}][${solveableCoordinate[0].column}] = ${solveableCoordinate[1] === TileIconType.SUN ? "SUN" : "MOON"}`)
+		}
+	}
+
+	return solveableCoordinates;
+}
+
+// edits an existing boardState to be human solvable
+// should probably make an immutable version......... later
+export const ensureBoardIsSolvable = (boardState: BoardState, solution: BoardState): BoardState => {
+
+	// const solutions = generateAllValidSolutions(boardState, 1);
+	// if (solutions.length === 0) {
+	// 	console.error("Board is unsolvable oops this shouldn't happen");
+	// 	throw "Board is unsolvable oops this shouldn't happen"
+	// }
+	// const solution = solutions[0];
+
+	const tryToSolveTheBoard = (boardState: BoardState): boolean => {
+		// solve it step by step.
+		console.log("Solving the board...");
+		const playingBoard = structuredClone(boardState);
+		const playingBoardString = createBoardString(playingBoard);
+		let fillInCoordinates = getSolveableCoordinates(playingBoard);
+		while (fillInCoordinates.length > 0) {
+			for (const [coordinate, iconType] of fillInCoordinates) {
+				playingBoard.tiles[coordinateToIndex(playingBoard, coordinate)].iconType = iconType;
+			}
+			fillInCoordinates = getSolveableCoordinates(playingBoard);
+		}
+		if (playingBoard.tiles.filter(tile => tile.iconType === TileIconType.EMPTY).length > 0) {
+			// We didn't solve it, we just have no more to fill :(
+			console.log("this is too hard...");
+			console.log(playingBoardString);
+			return false;
+		} else {
+			// We solved it!
+			console.log("Got it!");
+			return true;
+		}
+	}
+
+	let isEasilySolvable = tryToSolveTheBoard(boardState);
+	while (!isEasilySolvable) {
+		console.log("Attempting to make the board easier...");
+		// Choose a random tile index that is blank, and fill in what the solution has.
+		const blankTileIndices = boardState.tiles.filter((tile, index) => tile.iconType === TileIconType.EMPTY && isIndexEditable(boardState, index)).map((_, index) => index);
+		const chosenIndex = chooseRandom(blankTileIndices);
+		const solutionTileIconType = solution.tiles[chosenIndex].iconType;
+		boardState.tiles[chosenIndex].iconType = solutionTileIconType;
+		boardState.tiles[chosenIndex].locked = true;
+		isEasilySolvable = tryToSolveTheBoard(boardState);
+	}
+
+	return boardState;
+}
 
 export const ruleset: Rule[] = [
 	{
