@@ -192,14 +192,14 @@ export const getSolveableCoordinates = (boardState: BoardState): [Coordinate, Ti
 		}
 	}
 
-	if (solveableCoordinates.length === 0) {
-		console.log("No solveable coordinates found");
-	} else {
-		console.log("Solveable coordinates: ");
-		for (const solveableCoordinate of solveableCoordinates) {
-			console.log(`We can solve [${solveableCoordinate[0].row}][${solveableCoordinate[0].column}] = ${solveableCoordinate[1] === TileIconType.SUN ? "SUN" : "MOON"}`)
-		}
-	}
+	// if (solveableCoordinates.length === 0) {
+	// 	console.log("No solveable coordinates found");
+	// } else {
+	// 	console.log("Solveable coordinates: ");
+	// 	for (const solveableCoordinate of solveableCoordinates) {
+	// 		console.log(`We can solve [${solveableCoordinate[0].row}][${solveableCoordinate[0].column}] = ${solveableCoordinate[1] === TileIconType.SUN ? "SUN" : "MOON"}`)
+	// 	}
+	// }
 
 	return solveableCoordinates;
 }

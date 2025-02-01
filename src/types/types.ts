@@ -35,6 +35,7 @@ export interface BoardState {
 	constraints: Constraint[];
     rows: number;
     columns: number; // redundant, but included for completion
+    boardId?: number;
 }
 
 export interface RuleViolation {

@@ -1,8 +1,12 @@
 import { animated, useTransition } from "@react-spring/web";
 import { BoardState } from "../types/types";
-import TangoRiveBoard from "./TangoRiveBoard";
+import Board from "./Board";
+import { useEffect, useMemo, useRef, useState } from "react";
+// import TangoRiveBoard from "./TangoRiveBoard";
 
-const TangoRive = () => {
+let itemId = 0;
+
+const TangoRive = ({tangoTsApi}) => {
 
 	// This component will house a div that contains a TangoRiveBoard,
 	// regeneration button, reset button, and a timer.
@@ -11,26 +15,39 @@ const TangoRive = () => {
 	// if the game changes dimensions or uses a completely new board state.
 
 	// const [measureRef, { width, height }] = useMeasure()
-
-	const boards: BoardState[] = [
+	const [boards, setBoards] = useState(() => [
 		{
-			rows: 6,
-			columns: 6,
+			rows: 2,
+			columns: 2,
 			constraints: [],
-			tiles: []
+			tiles: [],
+			boardId: -1,
 		},
-	]
+	])
+
+	useEffect(() => {
+		console.log("LOL")
+		// setBoards([
+		// 	{
+		// 		rows: 4,
+		// 		columns: 4,
+		// 		constraints: [],
+		// 		tiles: [],
+		// 		boardId: itemId++,
+		// 	}
+		// ])
+	}, [])
 
 	const transitions = useTransition(boards, {
-		from: {
-			opacity: 0.5,
-		},
-		enter: {
-			opacity: 1,
-		},
-		leave: {
-			opacity: 0.5,
-		},
+		key: (item: { boardId: number } ) => itemId++,
+		from: () => ({ opacity: 0, transform: "perspective(800px) rotate3d(2, 5, 1, -45deg)" }),
+		enter: () => ({ opacity: 1, transform: "perspective(800px) rotate3d(2, 5, 1, 0deg)" }),
+		leave: () => ({ opacity: 0, transform: "perspective(800px) rotate3d(2, 5, 1, 360deg)" }),
+		config: {
+			mass: 2,
+			tension: 500,
+			friction: 30,
+		}
 	})
 
 	return (
@@ -42,10 +59,12 @@ const TangoRive = () => {
 				margin: "10px auto",
 				width: "360px",
 				height: "360px",
+				position: "absolute",
+				zIndex: "9999",
 			}}>
-				{transitions((style, item) => (
-					<animated.div style={style}>
-						<TangoRiveBoard />
+				{transitions((tstyle, item) => (
+					<animated.div style={tstyle}>
+						<Board rows={item.rows} columns={item.columns}/>
 					</animated.div>
 				))}
 			</div>

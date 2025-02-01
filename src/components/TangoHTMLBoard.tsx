@@ -1,9 +1,5 @@
-import { useState } from "react";
-import { Tile } from "./Tile";
 import { BoardState, ConstraintType } from "../types/types";
-import { changeBoardTileIcons, clearAllEditableIndices, generateRandomValidBoardState, getNextTileIcon, indexToCoordinate } from "../utils/utils";
-// import { changeBoardTileIcons, deserBoardString, getNextTileIcon, indexToCoordinate } from "../utils/utils";
-import { getAllViolations, getSolveableCoordinates, isWinState, updateBoardTileStateErrors } from "../utils/rules";
+import { Tile } from "./Tile";
 
 const generateDarkColor = () => {
   const r = Math.floor(Math.random() * 156);
@@ -12,49 +8,25 @@ const generateDarkColor = () => {
   return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
 }
 
-
-const Board = ({
-	rows = 6,
-	columns = 6,
-}: {
-	rows: number;
-	columns: number;
-}) => {
-
-	const [boardState, setBoardState] = useState<BoardState>(() => 
-		generateRandomValidBoardState(rows, columns)
-	);
+const TangoHTMLBoard = ({ boardState, winning, tileClickCallback }: { boardState: BoardState, winning?: boolean, tileClickCallback: (index: number) => void }) => {
 
 	let boardColor = generateDarkColor();
-	if (isWinState(boardState)) {
+	if (winning) {
 		console.log("WIN STATE!");
 		boardColor = `rgb(255,255,255)`
 	}
-
-	console.log("\n\n\nDEBUG TIME")
-	getSolveableCoordinates(boardState);
-	console.log("\n\n")
 
 	return (
 		<>
 			<div className="grid"
 			style={{
-				gridTemplateColumns: `repeat(${columns}, 60px)`,
-				gridTemplateRows: `repeat(${rows}, 60px)`,
+				gridTemplateColumns: `repeat(${boardState.columns}, 60px)`,
+				gridTemplateRows: `repeat(${boardState.rows}, 60px)`,
 				backgroundColor: boardColor,
 			}}>
 				{boardState.tiles.map((tileState, i) => (
 					<Tile key={i} startState={tileState} onClick={() => {
-						if (tileState.locked) {
-							return;
-						}
-						let newBoardState = changeBoardTileIcons(boardState, [ [ indexToCoordinate(boardState, i), getNextTileIcon(tileState.iconType) ] ])
-						newBoardState = updateBoardTileStateErrors(newBoardState);
-						setBoardState(newBoardState);
-						for (const violation of getAllViolations(newBoardState)) {
-							console.log(`!! ${violation.reason}`);
-							console.log(violation.highlightCoordinates);
-						}
+						tileClickCallback(i)
 					}} />
 				))}
 				{boardState.constraints.map((constraint, i) => {
@@ -98,18 +70,8 @@ const Board = ({
 					}
 				})}
 			</div>
-			<button className="regen-button" onClick={() => {
-				setBoardState(generateRandomValidBoardState(boardState.rows, boardState.columns))
-			}}>
-				Regenerate
-			</button>
-			<button className="reset-button" onClick={() => {
-				setBoardState(clearAllEditableIndices(boardState));
-			}}>
-				Reset
-			</button>
 		</>
 	);
 };
 
-export default Board;
+export default TangoHTMLBoard

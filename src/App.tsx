@@ -1,16 +1,25 @@
 // Rive
+import { useEffect, useState } from "react";
 import "./App.css";
-import Board from "./components/Board";
-import TangoRive from "./components/TangoRive";
+// import TangoRive from "./components/TangoRive";
+import TangoHTML from "./components/TangoHTML";
+import TangoTS from "./utils/TangoTS";
 // import { generateValidRowTileIcons } from "./utils/utils";
 
 function App() {
+
+	const [TTS, setTTS] = useState(() => {
+		return new TangoTS({ })
+	})
+
 	return (
 		<>
 			<h1>tango trainer</h1>
-			<TangoRive/>
+			{/* <Test/> */}
 			<h3>improve your tango ELO and bragging rights</h3>
-			<Board rows={6} columns={6} />
+			<TangoHTML tangoTsApi={TTS}/>
+			<TangoHTML tangoTsApi={TTS}/>
+			{/* <Board rows={6} columns={6} /> */}
 			<hr></hr>
 			{/* <Board rows={4} columns={8} /> */}
 			<hr></hr>

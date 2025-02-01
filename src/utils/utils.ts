@@ -89,13 +89,12 @@ export const deserBoardString = (tangoString: string): BoardState => {
 };
 
 export const clearAllEditableIndices = (boardState: BoardState): BoardState => {
-	const newBoardState = structuredClone(boardState);
-	newBoardState.tiles.forEach((tile) => {
-		if (!tile.locked) {
-			tile.iconType = TileIconType.EMPTY;
-		}
-	})
-	return newBoardState;
+	return {
+		tiles: boardState.tiles.map((tile) => ({ ...tile, iconType: tile.locked ? tile.iconType : TileIconType.EMPTY })),
+		constraints: boardState.constraints,
+		rows: boardState.rows,
+		columns: boardState.columns
+	};
 }
 
 export const generateAllValidSolutions = (
@@ -220,6 +219,13 @@ export const getBoardStateAsString = (
 	return out;
 };
 
+export const blankBoardState = {
+	rows: 6,
+	columns: 6,
+	constraints: [],
+	tiles: Array(6*6).map(() => ({iconType: TileIconType.EMPTY, locked: false, error: false})),
+}
+
 export const generateRandomValidBoardState = (
 	rows: number = constants.DEFAULT_BOARD_HEIGHT,
 	columns: number = constants.DEFAULT_BOARD_WIDTH,
@@ -256,15 +262,15 @@ export const generateRandomValidBoardState = (
 	let finalBoardState = newBoardState;
 
 	if (makeEasy) {
-		console.log("and let's make sure this is solvable:");
+		// console.log("and let's make sure this is solvable:");
 		finalBoardState = ensureBoardIsSolvable(newBoardState, solutionState);
 	}
 
-	console.log("done! final board is:");
-	console.log(getBoardStateAsString(finalBoardState));
-	console.log(createBoardString(finalBoardState));
+	// console.log("done! final board is:");
+	// console.log(getBoardStateAsString(finalBoardState));
+	// console.log(createBoardString(finalBoardState));
 
-	return newBoardState;
+	return finalBoardState;
 };
 
 export const generateRandomBoardState = (
