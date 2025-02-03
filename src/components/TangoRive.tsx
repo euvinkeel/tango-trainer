@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import TangoTS from "../utils/TangoTS";
 import TangoRiveBoard from "./TangoRiveBoard";
 import { BoardState } from "../types/types";
-import { TangoRiveBoardTile } from "./TangoRiveBoardTile";
-// import TangoRiveBoard from "./TangoRiveBoard";
 
 const TangoRive = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> }) => {
 
@@ -23,9 +21,9 @@ const TangoRive = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> })
 	useEffect(() => {
 		console.log("TangoRive Effect: Adding existing tangoTS board");
 		tangoTsApi.addChangeCallback((oldBoardState: BoardState, newBoardState: BoardState, completeReplace: boolean) => {
-			console.log("TangoRive: change callback askjdlkasjdlksa");
-			console.log(tangoTsApi);
-			console.log(tangoTsApi.isAWinState);
+			// console.log("TangoRive: change callback askjdlkasjdlksa");
+			// console.log(tangoTsApi);
+			// console.log(tangoTsApi.isAWinState);
 			if (completeReplace) {
 				// setBoards({ [itemId++]: newBoardState });
 				setBoards([newBoardState]);
@@ -52,32 +50,46 @@ const TangoRive = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> })
 
 	return (
 		<>
-			<h1>below vvvvv</h1>
-			<hr/>
-			<TangoRiveBoardTile boardIndex={0} tangoTsApi={tangoTsApi} onClick={() => {
-				console.log("SADJSKHDHJKLSD");
-			}}></TangoRiveBoardTile>
-			<hr/>
-			<h1>above ^^^^^</h1>
+			<h1 style={{color: "black", backgroundColor: "white"}} > Tango Rive </h1>
+			<h2 style={{color: "red", backgroundColor: "white"}}> {myWinFlag && "Solved!"} </h2>
+			<button className="regen-button" style={{
+				zIndex: "10000",
+			}}
+				onClick={() => {
+				tangoTsApi.regenerateBoard();
+			}}>
+				Regenerate
+			</button>
+			<button className="reset-button" style={{
+				zIndex: "10000",
+			}}
+				onClick={() => {
+				tangoTsApi.resetBoard();
+			}}>
+				Reset
+			</button>
+
 			<div style={{
 				backgroundColor: "rgb(250, 245, 240)",
 				borderRadius: "10px",
 				border: "1px solid rgb(220, 215, 210)",
 				margin: "10px auto",
 				width: "500px",
-				height: "500px",
+				height: "600px",
 				position: "absolute",
 				zIndex: "9999",
 			}}>
 				{transitions((transitionStyle, item) => (
 					<animated.div style={transitionStyle}>
 						<TangoRiveBoard tangoTsApi={tangoTsApi} tileClickCallback={(index: number) => {
-							console.log("TangoHTML: changing at ", index)
+							// console.log("TangoHTML: changing at ", index)
 							tangoTsApi.changeTileAtIndex(index);
 						}}/>
 					</animated.div>
 				))}
 			</div>
+
+
 		</>
 	)
 };

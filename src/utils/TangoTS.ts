@@ -39,8 +39,7 @@ export default class TangoTS {
 	constructor(config: TangoTSConfig) {
 		this._config = { ...config }; // use spread operator to clone config object
 		const oldBoardState = this._boardState;
-		this._boardState =
-			config.startingBoardState ?? generateRandomValidBoardState(6, 6);
+		this._boardState = config.startingBoardState ?? generateRandomValidBoardState(6, 6);
 		this._changeCallback(oldBoardState, this._boardState, true);
 		if (config.enableTimer === true) {
 			this._isCovered = true;

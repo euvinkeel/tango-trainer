@@ -38,11 +38,12 @@ const TangoRiveBoard = ({ tangoTsApi, tileClickCallback }: { tangoTsApi: Instanc
 				gridTemplateRows: `repeat(${tangoTsApi.boardState.rows}, 60px)`,
 				backgroundColor: boardColor,
 			}}>
-				<TangoRiveBoardTile boardIndex={0} tangoTsApi={tangoTsApi} onClick={() => {
+				{/* <TangoRiveBoardTile boardIndex={0} tangoTsApi={tangoTsApi} onClick={() => {
 					console.log("SADJSKHDHJKLSD");
-				}}></TangoRiveBoardTile>
+				}}></TangoRiveBoardTile> */}
 
-				{/* {tangoTsApi.boardState.tiles.map((_, i) => (
+
+				{tangoTsApi.boardState.tiles.map((_, i) => (
 					// only pass in the index and never update this (hence no using boardstate from useState)
 					<TangoRiveBoardTile key={i} boardIndex={i} tangoTsApi={tangoTsApi} onClick={() => {
 						tileClickCallback(i)
@@ -67,6 +68,7 @@ const TangoRiveBoard = ({ tangoTsApi, tileClickCallback }: { tangoTsApi: Instanc
 								key={i}
 								style={{
 									transform: `translateX(${finalx}px) translateY(${finaly}px)`,
+									userSelect: "none",
 								} as React.CSSProperties}
 							>
 								=
@@ -79,6 +81,7 @@ const TangoRiveBoard = ({ tangoTsApi, tileClickCallback }: { tangoTsApi: Instanc
 								key={i}
 								style={{
 									transform: `translateX(${finalx}px) translateY(${finaly}px)`,
+									userSelect: "none",
 								} as React.CSSProperties}
 							>
 								x
@@ -87,7 +90,7 @@ const TangoRiveBoard = ({ tangoTsApi, tileClickCallback }: { tangoTsApi: Instanc
 					} else {
 						throw "Invalid constraint type"
 					}
-				})} */}
+				})}
 			</div>
 		</>
 	);
