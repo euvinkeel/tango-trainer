@@ -3,30 +3,32 @@ import { BoardState, ConstraintType } from "../types/types";
 import TangoTS from "../utils/TangoTS";
 import { TangoRiveBoardTile } from "./TangoRiveBoardTile";
 
-const generateDarkColor = () => {
-  const r = Math.floor(Math.random() * 156);
-  const g = Math.floor(Math.random() * 156);
-  const b = Math.floor(Math.random() * 156);
-  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-}
+// const generateDarkColor = () => {
+//   const r = Math.floor(Math.random() * 156);
+//   const g = Math.floor(Math.random() * 156);
+//   const b = Math.floor(Math.random() * 156);
+//   return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+// }
 
-const TangoRiveBoard = ({ tangoTsApi, tileClickCallback }: { tangoTsApi: InstanceType<typeof TangoTS>, tileClickCallback: (index: number) => void }) => {
+const TangoRiveBoard = ({ boardId, tangoTsApi, tileClickCallback }: { boardId: string, tangoTsApi: InstanceType<typeof TangoTS>, tileClickCallback: (index: number) => void }) => {
 
-	const boardColor = generateDarkColor();
+	// const boardColor = generateDarkColor();
 	// const [myOwnBoardState, setMyOwnBoardState] = useState(tangoTsApi.boardState);
 	const [myWinFlag, setMyWinFlag] = useState(false);
 
 	useEffect(() => {
 		console.log("TangoRive Board: useffect")
-		tangoTsApi.addChangeCallback((oldBoardState: BoardState, newBoardState: BoardState, completeReplace: boolean) => {
+		return tangoTsApi.addChangeCallback(boardId, (_oldBoardState: BoardState, _newBoardState: BoardState, completeReplace?: boolean) => {
 			if (completeReplace) {
 				console.log("I AM BEING REPLACED!!")
 			} else {
 				// fire events to change our board tiles
-
 			}
 			setMyWinFlag(tangoTsApi.isAWinState);
 		})
+		// return () => {
+		// 	tangoTsApi.removeChangeCallback(boardId);
+		// };
 	},[])
 
 
@@ -36,7 +38,8 @@ const TangoRiveBoard = ({ tangoTsApi, tileClickCallback }: { tangoTsApi: Instanc
 			style={{
 				gridTemplateColumns: `repeat(${tangoTsApi.boardState.columns}, 60px)`,
 				gridTemplateRows: `repeat(${tangoTsApi.boardState.rows}, 60px)`,
-				backgroundColor: boardColor,
+				// backgroundColor: boardColor,
+				backgroundColor: `rgb(150, 150, 150)`,
 			}}>
 				{/* <TangoRiveBoardTile boardIndex={0} tangoTsApi={tangoTsApi} onClick={() => {
 					console.log("SADJSKHDHJKLSD");
@@ -45,10 +48,11 @@ const TangoRiveBoard = ({ tangoTsApi, tileClickCallback }: { tangoTsApi: Instanc
 
 				{tangoTsApi.boardState.tiles.map((_, i) => (
 					// only pass in the index and never update this (hence no using boardstate from useState)
-					<TangoRiveBoardTile key={i} boardIndex={i} tangoTsApi={tangoTsApi} onClick={() => {
+					<TangoRiveBoardTile tileId={`${boardId}_tile_${i}`} key={i} boardIndex={i} tangoTsApi={tangoTsApi} onClick={() => {
 						tileClickCallback(i)
 					}} />
 				))}
+
 				{tangoTsApi.boardState.constraints.map((constraint, i) => {
 					const pxcell = 64;
 					const basex = -tangoTsApi.boardState.columns / 2 * pxcell;

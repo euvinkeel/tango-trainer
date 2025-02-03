@@ -4,7 +4,7 @@ import TangoHTMLBoard from "./TangoHTMLBoard";
 import { Tile } from "./Tile";
 import { BoardState } from "../types/types";
 
-const TangoHTML = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> }) => {
+const TangoHTML = ({ tangoHTMLId, tangoTsApi }: { tangoHTMLId: string, tangoTsApi: InstanceType<typeof TangoTS> }) => {
 
 	const [myOwnBoardState, setMyOwnBoardState] = useState(() => {
 		return tangoTsApi.boardState;
@@ -12,10 +12,10 @@ const TangoHTML = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> })
 	const [myWinFlag, setMyWinFlag] = useState(false);
 
 	useEffect(() => {
-		tangoTsApi.addChangeCallback((oldBoardState: BoardState, newBoardState: BoardState) => {
-			console.log("change callback askjdlkasjdlksa");
-			console.log(tangoTsApi);
-			console.log(tangoTsApi.isAWinState);
+		return tangoTsApi.addChangeCallback(tangoHTMLId, (oldBoardState: BoardState, newBoardState: BoardState) => {
+			// console.log("change callback askjdlkasjdlksa");
+			// console.log(tangoTsApi);
+			// console.log(tangoTsApi.isAWinState);
 			setMyOwnBoardState(newBoardState);
 			setMyWinFlag(tangoTsApi.isAWinState);
 		})

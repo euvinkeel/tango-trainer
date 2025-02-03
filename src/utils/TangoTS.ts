@@ -24,13 +24,16 @@ export default class TangoTS {
 	// private _changeCallback: (oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => void = () => {};
 	private _boardState: BoardState = blankBoardState;
 
-	private _winCallbacks: ((timeElapsed: number) => void)[] = [];
-	private _changeCallbacks: ((
-		oldBoardState: BoardState,
-		newBoardState: BoardState,
-		completeReplace?: boolean,
-	) => void)[] = [];
-
+	private _winCallbacks: {
+		[key: string]: (timeElapsed: number) => void;
+	} = {};
+	private _changeCallbacks: {
+		[key: string]: (
+			oldBoardState: BoardState,
+			newBoardState: BoardState,
+			completeReplace?: boolean
+		) => void;
+	} = {};
 	private _isAWinState: boolean = false;
 	private _isCovered: boolean = false;
 
@@ -39,7 +42,8 @@ export default class TangoTS {
 	constructor(config: TangoTSConfig) {
 		this._config = { ...config }; // use spread operator to clone config object
 		const oldBoardState = this._boardState;
-		this._boardState = config.startingBoardState ?? generateRandomValidBoardState(6, 6);
+		this._boardState =
+			config.startingBoardState ?? generateRandomValidBoardState(6, 6);
 		this._changeCallback(oldBoardState, this._boardState, true);
 		if (config.enableTimer === true) {
 			this._isCovered = true;
@@ -109,34 +113,44 @@ export default class TangoTS {
 		this._changeCallback(oldBoardState, this._boardState, false);
 	}
 
-	public addWinCallback(callback: (timeElapsed: number) => void): () => void {
-		this._winCallbacks.push(callback);
+	public addWinCallback(
+		key: string,
+		callback: (timeElapsed: number) => void
+	): () => void {
+		this._winCallbacks[key] = callback;
 		return () => {
-			this._winCallbacks.splice(
-				this._winCallbacks.indexOf(callback),
-				1
-			)
+			this.removeWinCallback(key);
 		};
 	}
 
+	public removeWinCallback(key: string): void {
+		delete this._winCallbacks[key];
+	}
+
 	public addChangeCallback(
+		key: string,
 		callback: (
 			oldBoardState: BoardState,
 			newBoardState: BoardState,
 			completeReplace?: boolean
 		) => void
 	): () => void {
-		this._changeCallbacks.push(callback);
+		console.log(`Adding change callback for ${key}`);
+		this._changeCallbacks[key] = callback;
 		return () => {
-			this._changeCallbacks.splice(
-				this._changeCallbacks.indexOf(callback),
-				1
-			)
+			this.removeChangeCallback(key);
 		};
 	}
 
+	public removeChangeCallback(key: string): void {
+		console.log(`Removing change callback for ${key}`);
+		delete this._changeCallbacks[key];
+	}
+
 	private _winCallback(timeElapsed: number): void {
-		this._winCallbacks.forEach((callback) => callback(timeElapsed));
+		for (const key in this._winCallbacks) {
+			this._winCallbacks[key](timeElapsed);
+		}
 	}
 
 	private _changeCallback(
@@ -154,28 +168,8 @@ export default class TangoTS {
 			this._winCallback(elapsedSeconds);
 		}
 
-		this._changeCallbacks.forEach((callback) =>
-			callback(oldBoardState, newBoardState, completeReplace)
-		);
+		for (const key in this._changeCallbacks) {
+			this._changeCallbacks[key](oldBoardState, newBoardState, completeReplace);
+		}
 	}
-
-	// /*
-	// * To be called when the game is won
-	// */
-	// public setWinCallback(callback: (timeElapsed: number) => void): void {
-	// 	if (typeof callback !== 'function') {
-	// 		throw new Error('Invalid win callback. It must be a function.');
-	// 	}
-	// 	this._winCallback = callback;
-	// }
-
-	// /*
-	// * To be called anytime the board changes; includes board initialization and regeneration
-	// */
-	// public setChangeCallback(callback: (oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => void): void {
-	// 	if (typeof callback !== 'function') {
-	// 		throw new Error('Invalid change callback. It must be a function.');
-	// 	}
-	// 	this._changeCallback = callback;
-	// }
 }

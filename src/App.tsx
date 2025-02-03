@@ -19,8 +19,8 @@ function App() {
 			<h3>improve your tango ELO and bragging rights</h3>
 
 			<hr></hr>
-			{/* <TangoHTML tangoTsApi={TTS}/> */}
-			<TangoRive tangoTsApi={TTS}/>
+			<TangoHTML tangoHTMLId="tangoHTML" tangoTsApi={TTS}/>
+			<TangoRive tangoRiveId="tangoRive" tangoTsApi={TTS}/>
 			<hr></hr>
 
 			<div style={{

@@ -1,70 +1,76 @@
-import { useRive, useStateMachineInput } from '@rive-app/react-canvas';
-import TangoTS from '../utils/TangoTS';
-import { useEffect } from 'react';
-import { BoardState, TileIconType } from '../types/types';
+import TangoTS from "../utils/TangoTS";
+import { BoardState, TileIconType } from "../types/types";
+import { useEffect, useRef, useState } from "react";
+import { TileCanvas } from "./TileCanvas";
 
+const generateDarkColor = () => {
+  const r = Math.floor(Math.random() * 156);
+  const g = Math.floor(Math.random() * 156);
+  const b = Math.floor(Math.random() * 156);
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
 
-export const TangoRiveBoardTile = ({ boardIndex, tangoTsApi, onClick }: { boardIndex: number, tangoTsApi: InstanceType<typeof TangoTS>, onClick: () => void }) => {
-    const { rive, RiveComponent } = useRive({
-        src: "src/assets/tile.riv", // spent way too much time trying to figure this out
-		// i just screwed up the import path, and i forogt that assets was actually in src
-		// i guess relative paths never worked. any relative path here did not work
-		// also, the error messages are trash: why is it claiming "bad header" and "problem loading file, may be corrupt"
-		// when it is a path issue
-        autoplay: true,
-        stateMachines: "StateMachine",
-    })
+export const TangoRiveBoardTile = ({
+	tileId,
+	boardIndex,
+	tangoTsApi,
+	onClick,
+}: {
+	tileId: string;
+	boardIndex: number;
+	tangoTsApi: InstanceType<typeof TangoTS>;
+	onClick: () => void;
+}) => {
 
-
-    const isMoon = useStateMachineInput(rive, "StateMachine", "isMoon", false);
-    const isSun = useStateMachineInput(rive, "StateMachine", "isSun", false);
-
+	const [moon, setmoon] = useState(false);
+	const [sun, setsun] = useState(false);
 
 	useEffect(() => {
-		let lifetime = 0;
-		const intid = setInterval(() => {
-			lifetime += 100;
-			try {
-				if (lifetime > 2000) {
-					clearInterval(intid);
-					return;
+		return tangoTsApi.addChangeCallback( tileId,
+			(
+				oldBoardState: BoardState,
+				newBoardState: BoardState,
+				completeReplace?: boolean
+			) => {
+				// rive.
+				if (oldBoardState.tiles[boardIndex].iconType !== newBoardState.tiles[boardIndex].iconType) {
+					console.log(`${tileId} Change from ${oldBoardState.tiles[boardIndex].iconType} to ${newBoardState.tiles[boardIndex].iconType}`);
+					setmoon(newBoardState.tiles[boardIndex].iconType === TileIconType.MOON);
+					setsun(newBoardState.tiles[boardIndex].iconType === TileIconType.SUN);
+					// console.log(isMoon);
+					// console.log(isSun);
+					// if (isMoon) {
+					// 	isMoon.value = true;
+					// 	console.log("moon");
+					// } else if (isSun) {
+					// 	isSun.value = true;
+					// 	console.log("sun");
+					// }
+					// console.log(isMoonRef, isMoonRef.current);
+					// console.log(isSunRef, isSunRef.current);
+					// if (isMoonRef.current !== null) {
+					// 	isMoonRef.current!.value =
+					// 		newBoardState.tiles[boardIndex].iconType ===
+					// 		TileIconType.MOON;
+					// }
+					// if (isSunRef.current !== null) {
+					// 	isSunRef.current!.value =
+					// 		newBoardState.tiles[boardIndex].iconType ===
+					// 		TileIconType.SUN;
+					// }
 				}
-				if (isMoon !== null && isSun !== null) {
-					// console.log(isMoon, isSun);
-					isMoon!.value = tangoTsApi.boardState.tiles[boardIndex].iconType === TileIconType.MOON;
-					isSun!.value = tangoTsApi.boardState.tiles[boardIndex].iconType === TileIconType.SUN;
-				} else {
-					// console.log("OWNED")
-					clearInterval(intid);
-				}
-			} finally {
-				clearInterval(intid);
 			}
-		}, 100);
+		);
+	}, [tileId]);
 
-		tangoTsApi.addChangeCallback((oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => {
-			if (oldBoardState.tiles[boardIndex] != newBoardState.tiles[boardIndex]) {
-				if (isMoon) {
-					isMoon!.value = newBoardState.tiles[boardIndex].iconType === TileIconType.MOON;
-				}
-				if (isSun) {
-					isSun!.value = newBoardState.tiles[boardIndex].iconType === TileIconType.SUN;
-				}
-			}
-		})
-	}, [tangoTsApi, isMoon, isSun])
-
-    return (
-		<div style={{
-			// height: "200px",
-			// width: "200px",
-			// backgroundColor: "rgb(255, 100, 100)",
-			// border: "5px solid yellow"
-			userSelect: "none",
-		}}>
-			<RiveComponent
-				onClick={onClick}
-			/>
+	return (
+		<div
+			style={{
+				userSelect: "none",
+				backgroundColor: generateDarkColor(),
+			}}
+		>
+			<TileCanvas onClick={onClick} moon={moon} sun={sun}/>
 		</div>
-    )
+	);
 };

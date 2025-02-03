@@ -4,7 +4,9 @@ import TangoTS from "../utils/TangoTS";
 import TangoRiveBoard from "./TangoRiveBoard";
 import { BoardState } from "../types/types";
 
-const TangoRive = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> }) => {
+let currBoardId = 0;
+
+const TangoRive = ({ tangoRiveId, tangoTsApi }: { tangoRiveId: string, tangoTsApi: InstanceType<typeof TangoTS> }) => {
 
 	// This component will house a div that contains a TangoRiveBoard,
 	// regeneration button, reset button, and a timer.
@@ -20,12 +22,14 @@ const TangoRive = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> })
 
 	useEffect(() => {
 		console.log("TangoRive Effect: Adding existing tangoTS board");
-		tangoTsApi.addChangeCallback((oldBoardState: BoardState, newBoardState: BoardState, completeReplace: boolean) => {
+		setBoards([tangoTsApi.boardState]);
+		return tangoTsApi.addChangeCallback(tangoRiveId, (_oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => {
 			// console.log("TangoRive: change callback askjdlkasjdlksa");
 			// console.log(tangoTsApi);
 			// console.log(tangoTsApi.isAWinState);
 			if (completeReplace) {
 				// setBoards({ [itemId++]: newBoardState });
+				currBoardId += 1;
 				setBoards([newBoardState]);
 			} else {
 				boards[0] = newBoardState;
@@ -33,7 +37,9 @@ const TangoRive = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> })
 			// setMyOwnBoardState(newBoardState);
 			setMyWinFlag(tangoTsApi.isAWinState);
 		})
-		setBoards([tangoTsApi.boardState]);
+		// return () => {
+		// 	tangoTsApi.removeChangeCallback(tangoRiveId);
+		// };
 	}, [tangoTsApi])
 
 	const transitions = useTransition(boards, {
@@ -76,12 +82,23 @@ const TangoRive = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> })
 				margin: "10px auto",
 				width: "500px",
 				height: "600px",
-				position: "absolute",
-				zIndex: "9999",
+				// position: "absolute",
+				// zIndex: "9999",
 			}}>
 				{transitions((transitionStyle, item) => (
-					<animated.div style={transitionStyle}>
-						<TangoRiveBoard tangoTsApi={tangoTsApi} tileClickCallback={(index: number) => {
+					<animated.div style={{
+						position: "absolute",
+						display: "flex",
+						justifyContent: "center",
+						top: "70%",
+						right: "50%",
+						bottom: "50%",
+						left: "50%",
+						zIndex: "9999",
+						transformOrigin: "center",
+						...transitionStyle
+					}}>
+						<TangoRiveBoard boardId={`${tangoRiveId}_${currBoardId}`} tangoTsApi={tangoTsApi} tileClickCallback={(index: number) => {
 							// console.log("TangoHTML: changing at ", index)
 							tangoTsApi.changeTileAtIndex(index);
 						}}/>
