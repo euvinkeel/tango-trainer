@@ -5,7 +5,12 @@ export const TangoRiveBoardTile = ({ boardIndex, tangoTsApi, onClick }: { boardI
 	console.log("TILE:", boardIndex);
 
     const { rive, RiveComponent } = useRive({
-        src: "../assets/tile.riv/",
+        src: "src/assets/tile.riv", // spent way too much time trying to figure this out
+		// i just screwed up the import path, and i forogt that assets was actually in src
+		// i guess relative paths never worked. any relative path here did not work
+		// also, the error messages are trash: why is it claiming "bad header" and "problem loading file, may be corrupt"
+		// when it is a path issue
+
         autoplay: true,
         stateMachines: "StateMachine",
     })
@@ -15,7 +20,12 @@ export const TangoRiveBoardTile = ({ boardIndex, tangoTsApi, onClick }: { boardI
     // const change = useStateMachineInput(rive, "StateMachine", "Change");
 
     return (
-		<div>
+		<div style={{
+			height: "200px",
+			width: "200px",
+			backgroundColor: "rgb(255, 100, 100)",
+			border: "5px solid yellow"
+		}}>
 			<RiveComponent
 				onClick={onClick}
 			/>

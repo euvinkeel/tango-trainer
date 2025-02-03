@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import TangoTS from "../utils/TangoTS";
 import TangoRiveBoard from "./TangoRiveBoard";
 import { BoardState } from "../types/types";
+import { TangoRiveBoardTile } from "./TangoRiveBoardTile";
 // import TangoRiveBoard from "./TangoRiveBoard";
 
 const TangoRive = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> }) => {
@@ -51,6 +52,13 @@ const TangoRive = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> })
 
 	return (
 		<>
+			<h1>below vvvvv</h1>
+			<hr/>
+			<TangoRiveBoardTile boardIndex={0} tangoTsApi={tangoTsApi} onClick={() => {
+				console.log("SADJSKHDHJKLSD");
+			}}></TangoRiveBoardTile>
+			<hr/>
+			<h1>above ^^^^^</h1>
 			<div style={{
 				backgroundColor: "rgb(250, 245, 240)",
 				borderRadius: "10px",
