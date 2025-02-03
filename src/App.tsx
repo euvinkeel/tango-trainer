@@ -4,6 +4,7 @@ import "./App.css";
 // import TangoRive from "./components/TangoRive";
 import TangoHTML from "./components/TangoHTML";
 import TangoTS from "./utils/TangoTS";
+import TangoRive from "./components/TangoRive";
 // import { generateValidRowTileIcons } from "./utils/utils";
 
 function App() {
@@ -15,16 +16,16 @@ function App() {
 	return (
 		<>
 			<h1>tango trainer</h1>
-			{/* <Test/> */}
 			<h3>improve your tango ELO and bragging rights</h3>
-			<TangoHTML tangoTsApi={TTS}/>
-			<TangoHTML tangoTsApi={TTS}/>
-			{/* <Board rows={6} columns={6} /> */}
+
 			<hr></hr>
-			{/* <Board rows={4} columns={8} /> */}
+			{/* <TangoHTML tangoTsApi={TTS}/> */}
+			<TangoRive tangoTsApi={TTS}/>
 			<hr></hr>
-			{/* <Board rows={4} columns={16} /> */}
-			<p></p>
+
+			<div style={{
+				height: "1000px"
+			}}/>
 		</>
 	);
 }

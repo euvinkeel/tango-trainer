@@ -12,7 +12,6 @@ const TangoHTML = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> })
 	const [myWinFlag, setMyWinFlag] = useState(false);
 
 	useEffect(() => {
-		console.log("TangoHTML UseEffect: Hooking into TangoTSApi")
 		tangoTsApi.addChangeCallback((oldBoardState: BoardState, newBoardState: BoardState) => {
 			console.log("change callback askjdlkasjdlksa");
 			console.log(tangoTsApi);
@@ -30,12 +29,15 @@ const TangoHTML = ({ tangoTsApi }: { tangoTsApi: InstanceType<typeof TangoTS> })
 				padding: "10px",
 				borderRadius: "10px",
 				boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)"
-			}}
-		>
-			<h1 style={{
-				color: "#fff",
-				margin: "10px",
-			}}>Basic Tango Board</h1>
+			}}>
+
+			<h1>
+				Tango HTML
+			</h1>
+
+			<h2>
+				{myWinFlag && "Solved!"}
+			</h2>
 
 			<TangoHTMLBoard boardState={myOwnBoardState} winning={myWinFlag} tileClickCallback={(index: number) => {
 				console.log("TangoHTML: changing at ", index)

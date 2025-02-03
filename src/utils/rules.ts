@@ -28,11 +28,11 @@ export const testIfCoordinateIsDeducible = (boardState: BoardState, coordinate: 
 	let debugmode;
 	debugmode = false;
 	debugmode = false;
-	if (coordinate.row == 5 && coordinate.column == 5) {
-		console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndebug mode for this coordinate:");
-		console.log(getBoardStateAsString(boardState, coordinate));
-		debugmode = true;
-	}
+	// if (coordinate.row == 5 && coordinate.column == 5) {
+	// 	console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndebug mode for this coordinate:");
+	// 	console.log(getBoardStateAsString(boardState, coordinate));
+	// 	debugmode = true;
+	// }
 
 	// Assume our current setup in boardState.
 	// make immutable to be safe...
