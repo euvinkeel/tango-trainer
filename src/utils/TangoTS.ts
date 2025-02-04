@@ -89,7 +89,8 @@ export default class TangoTS {
 		const coordinate = indexToCoordinate(this._boardState, index);
 		const targetTile = this._boardState.tiles[index];
 		if (targetTile.locked) {
-			throw new Error("Cannot change locked tile");
+			// throw new Error("Cannot change locked tile");
+			return;
 		}
 		const oldBoardState = this._boardState;
 		const newBoardState = changeBoardTileIcons(this._boardState, [
@@ -135,7 +136,7 @@ export default class TangoTS {
 			completeReplace?: boolean
 		) => void
 	): () => void {
-		console.log(`Adding change callback for ${key}`);
+		// console.log(`Adding change callback for ${key}`);
 		this._changeCallbacks[key] = callback;
 		return () => {
 			this.removeChangeCallback(key);
@@ -143,7 +144,7 @@ export default class TangoTS {
 	}
 
 	public removeChangeCallback(key: string): void {
-		console.log(`Removing change callback for ${key}`);
+		// console.log(`Removing change callback for ${key}`);
 		delete this._changeCallbacks[key];
 	}
 
@@ -167,6 +168,8 @@ export default class TangoTS {
 			const elapsedSeconds = (winTick - this._startTickMs) / 1000;
 			this._winCallback(elapsedSeconds);
 		}
+
+		// console.log(`I have ${Object.keys(this._changeCallbacks).length} callbacks.`)
 
 		for (const key in this._changeCallbacks) {
 			this._changeCallbacks[key](oldBoardState, newBoardState, completeReplace);
