@@ -1,5 +1,6 @@
 import TangoTS from "../utils/TangoTS";
 import { BoardState, TileIconType } from "../types/types";
+import { Rive, useRive, useStateMachineInput } from "@rive-app/react-canvas";
 import { useEffect, useRef, useState } from "react";
 import { TileCanvas } from "./TileCanvas";
 
@@ -22,45 +23,53 @@ export const TangoRiveBoardTile = ({
 	onClick: () => void;
 }) => {
 
-	const [moon, setmoon] = useState(false);
-	const [sun, setsun] = useState(false);
+	let onLoadCallback = (_rive: any) => {};
+	const riveRef = useRef(null);
+
+	const { rive, RiveComponent } = useRive({
+		src: "src/assets/tile.riv", // spent way too much time trying to figure this out
+		// i just screwed up the import path, and i forogt that assets was actually in src
+		// i guess relative paths never worked. any relative path here did not work
+		// also, the error messages are trash: why is it claiming "bad header" and "problem loading file, may be corrupt"
+		// when it is a path issue
+		autoplay: true,
+		stateMachines: "StateMachine",
+		onLoad: (_: any) => {
+			console.log("Rive just loaded.", rive)
+			onLoadCallback(rive);
+		},
+	});
+
+	const isMoon = useStateMachineInput(rive, "StateMachine", "isMoon", false);
+	const isSun = useStateMachineInput(rive, "StateMachine", "isSun", false);
+
+	onLoadCallback = () => {
+		console.log("ON LOAD CALLBACK SET")
+		tangoTsApi.addChangeCallback( tileId, ( oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => {
+			if (oldBoardState.tiles[boardIndex].iconType !== newBoardState.tiles[boardIndex].iconType) {
+				console.log(`${tileId} Change from ${oldBoardState.tiles[boardIndex].iconType} to ${newBoardState.tiles[boardIndex].iconType}`);
+				const newMoon = newBoardState.tiles[boardIndex].iconType === TileIconType.MOON;
+				const newSun = newBoardState.tiles[boardIndex].iconType === TileIconType.SUN;
+
+				// rive?.setBooleanStateAtPath("isMoon", newMoon, "");
+				console.log(rive);
+				console.log(rive?.stateMachineInputs('isMoon'));
+				// rive?.setBooleanStateAtPath("isSun", newSun, "");
+				console.log(isMoon, isSun, newMoon, newSun);
+				// if (isMoon) {
+				// 	isMoon!.value = 
+				// }
+				// if (isSun) {
+				// 	isSun!.value = newBoardState.tiles[boardIndex].iconType === TileIconType.SUN;
+				// }
+			}
+		});
+	}
 
 	useEffect(() => {
-		return tangoTsApi.addChangeCallback( tileId,
-			(
-				oldBoardState: BoardState,
-				newBoardState: BoardState,
-				completeReplace?: boolean
-			) => {
-				// rive.
-				if (oldBoardState.tiles[boardIndex].iconType !== newBoardState.tiles[boardIndex].iconType) {
-					console.log(`${tileId} Change from ${oldBoardState.tiles[boardIndex].iconType} to ${newBoardState.tiles[boardIndex].iconType}`);
-					setmoon(newBoardState.tiles[boardIndex].iconType === TileIconType.MOON);
-					setsun(newBoardState.tiles[boardIndex].iconType === TileIconType.SUN);
-					// console.log(isMoon);
-					// console.log(isSun);
-					// if (isMoon) {
-					// 	isMoon.value = true;
-					// 	console.log("moon");
-					// } else if (isSun) {
-					// 	isSun.value = true;
-					// 	console.log("sun");
-					// }
-					// console.log(isMoonRef, isMoonRef.current);
-					// console.log(isSunRef, isSunRef.current);
-					// if (isMoonRef.current !== null) {
-					// 	isMoonRef.current!.value =
-					// 		newBoardState.tiles[boardIndex].iconType ===
-					// 		TileIconType.MOON;
-					// }
-					// if (isSunRef.current !== null) {
-					// 	isSunRef.current!.value =
-					// 		newBoardState.tiles[boardIndex].iconType ===
-					// 		TileIconType.SUN;
-					// }
-				}
-			}
-		);
+		return () => {
+			tangoTsApi.removeChangeCallback(tileId);
+		}
 	}, [tileId]);
 
 	return (
@@ -70,7 +79,8 @@ export const TangoRiveBoardTile = ({
 				backgroundColor: generateDarkColor(),
 			}}
 		>
-			<TileCanvas onClick={onClick} moon={moon} sun={sun}/>
+			<RiveComponent onClick={onClick} />
+			{/* <TileCanvas onClick={onClick} moon={moon} sun={sun}/> */}
 		</div>
 	);
 };
