@@ -217,7 +217,7 @@ export const ensureBoardIsSolvable = (boardState: BoardState, solution: BoardSta
 
 	const tryToSolveTheBoard = (boardState: BoardState): boolean => {
 		// solve it step by step.
-		console.log("Solving the board...");
+		// console.log("Solving the board...");
 		const playingBoard = structuredClone(boardState);
 		const playingBoardString = createBoardString(playingBoard);
 		let fillInCoordinates = getSolveableCoordinates(playingBoard);
@@ -229,19 +229,19 @@ export const ensureBoardIsSolvable = (boardState: BoardState, solution: BoardSta
 		}
 		if (playingBoard.tiles.filter(tile => tile.iconType === TileIconType.EMPTY).length > 0) {
 			// We didn't solve it, we just have no more to fill :(
-			console.log("this is too hard...");
-			console.log(playingBoardString);
+			// console.log("this is too hard...");
+			// console.log(playingBoardString);
 			return false;
 		} else {
 			// We solved it!
-			console.log("Got it!");
+			// console.log("Got it!");
 			return true;
 		}
 	}
 
 	let isEasilySolvable = tryToSolveTheBoard(boardState);
 	while (!isEasilySolvable) {
-		console.log("Attempting to make the board easier...");
+		// console.log("Attempting to make the board easier...");
 		// Choose a random tile index that is blank, and fill in what the solution has.
 		const blankTileIndices = boardState.tiles.filter((tile, index) => tile.iconType === TileIconType.EMPTY && isIndexEditable(boardState, index)).map((_, index) => index);
 		const chosenIndex = chooseRandom(blankTileIndices);

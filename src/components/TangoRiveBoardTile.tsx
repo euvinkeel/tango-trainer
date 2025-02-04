@@ -78,7 +78,8 @@ export const TangoRiveBoardTile = ({
 		<div
 			style={{
 				userSelect: "none",
-				backgroundColor: generateDarkColor(),
+				// backgroundColor: generateDarkColor(),
+				backgroundColor: "rgb(255, 255, 255)"
 			}}
 		>
 			<canvas ref={canvasRef} id="canvas" style={{

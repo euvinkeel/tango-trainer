@@ -243,7 +243,7 @@ export const generateRandomValidBoardState = (
 	let solutions: TileIconType[][] = generateAllValidSolutions(newBoardState, 2);
 
 	while (solutions.length !== 1) {
-		console.log("nope, throw that away");
+		// console.log("nope, throw that away");
 		newBoardState = generateRandomBoardState(
 			rows,
 			columns,
@@ -252,13 +252,13 @@ export const generateRandomValidBoardState = (
 		solutions = generateAllValidSolutions(newBoardState, 2);
 	}
 
-	console.log("YAY :D got one solution for board:");
+	// console.log("YAY :D got one solution for board:");
 	const solutionState = structuredClone(newBoardState);
-	console.log(getBoardStateAsString(solutionState));
+	// console.log(getBoardStateAsString(solutionState));
 	solutions[0].forEach((tileIcon, index) => {
 		solutionState.tiles[index].iconType = tileIcon;
 	});
-	console.log(getBoardStateAsString(solutionState));
+	// console.log(getBoardStateAsString(solutionState));
 	let finalBoardState = newBoardState;
 
 	if (makeEasy) {
