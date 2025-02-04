@@ -14,43 +14,32 @@ const TangoRive = ({ tangoRiveId, tangoTsApi }: { tangoRiveId: string, tangoTsAp
 	// The TangoRiveBoard can be replaced with a new one at any time
 	// if the game changes dimensions or uses a completely new board state.
 
-	// const [measureRef, { width, height }] = useMeasure()
-	// const [boards, setBoards] = useState<{[key: number]: BoardState}>({});
-	const [boards, setBoards] = useState<BoardState[]>([]);
-	// const [boardState, setBoardState] = useState<BoardState>(blankBoardState);
+	const [activeBoards, setActiveBoards] = useState<BoardState[]>([]);
 	const [myWinFlag, setMyWinFlag] = useState(false);
 
 	useEffect(() => {
 		console.log("TangoRive Effect: Adding existing tangoTS board");
-		setBoards([tangoTsApi.boardState]);
+		setActiveBoards([tangoTsApi.boardState]);
 		return tangoTsApi.addChangeCallback(tangoRiveId, (_oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => {
-			// console.log("TangoRive: change callback askjdlkasjdlksa");
-			// console.log(tangoTsApi);
-			// console.log(tangoTsApi.isAWinState);
 			if (completeReplace) {
-				// setBoards({ [itemId++]: newBoardState });
 				currBoardId += 1;
-				setBoards([newBoardState]);
+				setActiveBoards([newBoardState]);
 			} else {
-				boards[0] = newBoardState;
+				activeBoards[0] = newBoardState;
 			}
-			// setMyOwnBoardState(newBoardState);
 			setMyWinFlag(tangoTsApi.isAWinState);
 		})
-		// return () => {
-		// 	tangoTsApi.removeChangeCallback(tangoRiveId);
-		// };
 	}, [tangoTsApi])
 
-	const transitions = useTransition(boards, {
-		// key: (boards: { boardId: number } ) => boards[boardId],
+	const transitions = useTransition(activeBoards, {
 		from: () => ({ opacity: 0, transform: "perspective(800px) rotate3d(2, 5, 1, -45deg)" }),
 		enter: () => ({ opacity: 1, transform: "perspective(800px) rotate3d(2, 5, 1, 0deg)" }),
 		leave: () => ({ opacity: 0, transform: "perspective(800px) rotate3d(2, 5, 1, 360deg)" }),
 		config: {
-			mass: 2,
-			tension: 500,
-			friction: 30,
+			mass: 8,
+			tension: 200,
+			friction: 50,
+			precision: 0.0001,
 		}
 	})
 
@@ -85,8 +74,8 @@ const TangoRive = ({ tangoRiveId, tangoTsApi }: { tangoRiveId: string, tangoTsAp
 				// position: "absolute",
 				// zIndex: "9999",
 			}}>
-				{transitions((transitionStyle, item) => (
-					<animated.div style={{
+				{transitions((transitionStyle, item, t, index) => (
+					<animated.div key={index} style={{
 						position: "absolute",
 						display: "flex",
 						justifyContent: "center",
@@ -95,7 +84,7 @@ const TangoRive = ({ tangoRiveId, tangoTsApi }: { tangoRiveId: string, tangoTsAp
 						bottom: "50%",
 						left: "50%",
 						zIndex: "9999",
-						transformOrigin: "center",
+						transformOrigin: "100% 100% 0",
 						...transitionStyle
 					}}>
 						<TangoRiveBoard boardId={`${tangoRiveId}_${currBoardId}`} tangoTsApi={tangoTsApi} tileClickCallback={(index: number) => {

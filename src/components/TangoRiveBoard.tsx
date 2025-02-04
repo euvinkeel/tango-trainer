@@ -3,34 +3,16 @@ import { BoardState, ConstraintType } from "../types/types";
 import TangoTS from "../utils/TangoTS";
 import { TangoRiveBoardTile } from "./TangoRiveBoardTile";
 
-// const generateDarkColor = () => {
-//   const r = Math.floor(Math.random() * 156);
-//   const g = Math.floor(Math.random() * 156);
-//   const b = Math.floor(Math.random() * 156);
-//   return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-// }
 
 const TangoRiveBoard = ({ boardId, tangoTsApi, tileClickCallback }: { boardId: string, tangoTsApi: InstanceType<typeof TangoTS>, tileClickCallback: (index: number) => void }) => {
 
-	// const boardColor = generateDarkColor();
-	// const [myOwnBoardState, setMyOwnBoardState] = useState(tangoTsApi.boardState);
 	const [myWinFlag, setMyWinFlag] = useState(false);
 
 	useEffect(() => {
-		console.log("TangoRive Board: useffect")
 		return tangoTsApi.addChangeCallback(boardId, (_oldBoardState: BoardState, _newBoardState: BoardState, completeReplace?: boolean) => {
-			if (completeReplace) {
-				console.log("I AM BEING REPLACED!!")
-			} else {
-				// fire events to change our board tiles
-			}
 			setMyWinFlag(tangoTsApi.isAWinState);
 		})
-		// return () => {
-		// 	tangoTsApi.removeChangeCallback(boardId);
-		// };
 	},[])
-
 
 	return (
 		<>
@@ -38,13 +20,8 @@ const TangoRiveBoard = ({ boardId, tangoTsApi, tileClickCallback }: { boardId: s
 			style={{
 				gridTemplateColumns: `repeat(${tangoTsApi.boardState.columns}, 60px)`,
 				gridTemplateRows: `repeat(${tangoTsApi.boardState.rows}, 60px)`,
-				// backgroundColor: boardColor,
 				backgroundColor: `rgb(150, 150, 150)`,
 			}}>
-				{/* <TangoRiveBoardTile boardIndex={0} tangoTsApi={tangoTsApi} onClick={() => {
-					console.log("SADJSKHDHJKLSD");
-				}}></TangoRiveBoardTile> */}
-
 
 				{tangoTsApi.boardState.tiles.map((_, i) => (
 					// only pass in the index and never update this (hence no using boardstate from useState)
