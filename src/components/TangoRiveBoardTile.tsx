@@ -63,7 +63,9 @@ export const TangoRiveBoardTile = ({
 			},
 		})
 
-		r.resizeDrawingSurfaceToCanvas();
+		// setInterval(() => {
+		// 	r.resizeDrawingSurfaceToCanvas();
+		// }, 100)
 		setTimeout(() => {
 			r.resizeDrawingSurfaceToCanvas();
 		}, 500);

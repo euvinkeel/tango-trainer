@@ -1,4 +1,4 @@
-import { animated, useTransition } from "@react-spring/web";
+// import { animated, useTransition } from "@react-spring/web";
 import { useEffect, useState, ReactDOM, useRef } from "react";
 import TangoTS from "../utils/TangoTS";
 import TangoRiveBoard from "./TangoRiveBoard";
@@ -8,9 +8,9 @@ let currBoardId = 0;
 const springConfig = { mass: 8, tension: 200, friction: 50, precision: 0.0001, };
 
 interface BoardQueueItem {
-	id: number,
+	key: string,
 	boardState: BoardState,
-	element?: HTMLElement,
+	showing: boolean,
 }
 
 const TangoRive = ({ tangoRiveId, tangoTsApi }: { tangoRiveId: string, tangoTsApi: InstanceType<typeof TangoTS> }) => {
@@ -24,41 +24,49 @@ const TangoRive = ({ tangoRiveId, tangoTsApi }: { tangoRiveId: string, tangoTsAp
 
 	const [myWinFlag, setMyWinFlag] = useState(false);
 	const boardContainerRef = useRef<HTMLDivElement>(null);
-	const boardQueue = useRef<BoardQueueItem[]>([]);
+	const initBoardItem = { key: `${tangoRiveId}_board${currBoardId}`, boardState: tangoTsApi.boardState, showing: true };
+	const [boardQueue, setBoardQueue] = useState<BoardQueueItem[]>(() => ([initBoardItem]));
 
-	// 	from: () => ({ opacity: 0, transform: "perspective(800px) rotate3d(2, 5, 1, -45deg)" }),
-	// 	enter: () => ({ opacity: 1, transform: "perspective(800px) rotate3d(2, 5, 1, 0deg)" }),
-	// 	leave: () => ({ opacity: 0, transform: "perspective(800px) rotate3d(2, 5, 1, 360deg)" }),
 
 	useEffect(() => {
-		console.log("TangoRive Effect: Adding existing tangoTS board");
-
-		const newBoardItem = { id: currBoardId, boardState: tangoTsApi.boardState, element: null };
-		boardQueue.current = [];
-		boardQueue.current.push(newBoardItem);
-		console.log("Starting board queue:", boardQueue.current);
-
-		const boardElement = <TangoRiveBoard boardId={currBoardId.toString()} tangoTsApi={tangoTsApi} tileClickCallback={() => {console.log("LOL")}} />
-
+		if (boardQueue.length > 1) {
+			console.log("schedule cleanup")
+			setTimeout(() => {
+				console.log("dump")
+				setBoardQueue(boardQueue.slice(1));
+			}, 500)
+		}
 		return tangoTsApi.addChangeCallback(tangoRiveId, (_oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => {
+			console.log("CHANGE CALLBACK");
 			if (completeReplace) {
-				const obsoleteBoardItem = boardQueue.current.shift();
-				console.log("Kicked out ", obsoleteBoardItem);
-				// play an animation on that board item and delete it
 				currBoardId += 1;
-				const newBoardItem = { id: currBoardId, boardState: newBoardState, };
-				boardQueue.current.push(newBoardItem);
-				console.log("Added ", newBoardItem);
+				const newBoardItem = { key: `${tangoRiveId}_board${currBoardId}`, boardState: newBoardState, showing: true }
+				console.log("\t\t\tbefore adding: ", boardQueue);
+				const newBoardQueue = boardQueue.map((queueItem) => {
+					return {
+						...queueItem,
+						showing: false,
+					}
+				}).concat(newBoardItem)
+				setBoardQueue(newBoardQueue);
+				console.log("\t\t\tAdded ", newBoardItem);
 			} else {
-				boardQueue.current[0].boardState = newBoardState;
-				console.log("Mutated ", boardQueue.current[0]);
+				// boardQueue.current[0].boardState = newBoardState;
+				boardQueue[0].boardState = newBoardState;
+				// setBoardQueue([boardQueue]);
+				// console.log("\t\t\tMutated ", boardQueue.current[0]);
+				console.log("\t\t\tMutated ", boardQueue[0]);
 				// just mutate the boardState member
 			}
-			console.log(boardQueue.current);
+			// console.log("\t\t\tnew queue = ", boardQueue.current);
+			// console.log("\t\t\tnew queue = ", boardQueue);
 			setMyWinFlag(tangoTsApi.isAWinState);
 		})
+	}, [tangoTsApi, boardQueue])
 
-	}, [tangoTsApi])
+	useEffect(() => {
+		console.log("new queue = ", boardQueue);
+	}, [boardQueue])
 
 	return (
 		<>
@@ -76,8 +84,36 @@ const TangoRive = ({ tangoRiveId, tangoTsApi }: { tangoRiveId: string, tangoTsAp
 				<h2 style={{color: "red", backgroundColor: "white"}}> {myWinFlag && "Solved!"} </h2>
 				<button className="regen-button" style={{ zIndex: "10000", }} onClick={() => { tangoTsApi.regenerateBoard(); }}> Regenerate </button>
 				<button className="reset-button" style={{ zIndex: "10000", }} onClick={() => { tangoTsApi.resetBoard(); }}> Reset </button>
-				<div ref={boardContainerRef}>
+				<div style={{
+					// backgroundColor: "red",
+					// opacity: "20%",
+					width: "100%",
+					// height: "100%",
+					height: "80%",
+					margin: "auto",
+					display: "flex",
+					justifyContent: "center",
+					alignContent: "center",
+					position: "relative",
+				}}
+				ref={boardContainerRef}
+				>
+					{boardQueue.map((queueItem: BoardQueueItem) => {
+						return (
+							<div style={{
+								position: "absolute",
+								top: "5%",
+								left: "10%",
 
+							}}
+							key={queueItem.key}
+							>
+								<TangoRiveBoard showing={queueItem.showing} boardId={queueItem.key} tangoTsApi={tangoTsApi} tileClickCallback={(idx) => {
+									tangoTsApi.changeTileAtIndex(idx);
+								}} />
+							</div>
+						)
+					})}
 				</div>
 			</div>
 		</>
