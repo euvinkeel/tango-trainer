@@ -1,10 +1,13 @@
 import { BoardState, Coordinate, TileIconType } from "../types/types";
+import { presetBoards } from "./boards";
 import { isWinState, updateBoardTileStateErrors } from "./rules";
 import {
 	blankBoardState,
 	changeBoardTileIcons,
+	chooseRandom,
 	clearAllEditableIndices,
 	coordinateToIndex,
+	deserBoardString,
 	generateRandomValidBoardState,
 	getNextTileIcon,
 	indexToCoordinate,
@@ -15,6 +18,7 @@ export interface TangoTSConfig {
 	enableRegeneration?: boolean;
 	enableReset?: boolean;
 	startingBoardState?: BoardState;
+	usePresetBoards?: boolean;
 }
 
 export default class TangoTS {
@@ -101,10 +105,16 @@ export default class TangoTS {
 
 	public regenerateBoard() {
 		const oldBoardState = this._boardState;
-		this._boardState = generateRandomValidBoardState(
-			this._boardState.rows,
-			this._boardState.columns
-		);
+
+		if (this._config.usePresetBoards === true) {
+			this._boardState = deserBoardString(chooseRandom(presetBoards));
+		} else {
+			this._boardState = generateRandomValidBoardState(
+				this._boardState.rows,
+				this._boardState.columns
+			);
+		}
+
 		this._changeCallback(oldBoardState, this._boardState, true);
 	}
 

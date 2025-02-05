@@ -266,9 +266,9 @@ export const generateRandomValidBoardState = (
 		finalBoardState = ensureBoardIsSolvable(newBoardState, solutionState);
 	}
 
-	// console.log("done! final board is:");
-	// console.log(getBoardStateAsString(finalBoardState));
-	// console.log(createBoardString(finalBoardState));
+	console.log("done! final board is:");
+	console.log(getBoardStateAsString(finalBoardState));
+	console.log(createBoardString(finalBoardState));
 
 	return finalBoardState;
 };

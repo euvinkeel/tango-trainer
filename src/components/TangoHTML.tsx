@@ -25,7 +25,7 @@ const TangoHTML = ({ tangoHTMLId, tangoTsApi }: { tangoHTMLId: string, tangoTsAp
 		<div
 			style={{
 				margin: "20px",
-				backgroundColor: "#333",
+				backgroundColor: "#eee",
 				padding: "10px",
 				borderRadius: "10px",
 				boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)"
