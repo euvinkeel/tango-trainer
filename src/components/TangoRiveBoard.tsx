@@ -1,4 +1,5 @@
-import { ConstraintType } from "../types/types";
+import { useEffect, useState } from "react";
+import { BoardState, ConstraintType } from "../types/types";
 import TangoTS from "../utils/TangoTS";
 import { TangoRiveBoardTile } from "./TangoRiveBoardTile";
 import { animated, useSprings } from "@react-spring/web";
@@ -13,13 +14,40 @@ const TangoRiveBoard = ({
 	tileClickCallback: (index: number) => void;
 }) => {
 
+	const cols = tangoTsApi.boardState.columns;
+	const rows = tangoTsApi.boardState.rows;
 	const [props, api] = useSprings(
 		tangoTsApi.boardState.tiles.length,
 		(i) => ({
-			from: { x: i*20, opacity: 0, transform: `rotateZ(180deg)`, borderRadius: "100px", },
-			to: { x: 0, opacity: 1, transform: `rotateZ(0deg)`, borderRadius: 0, },
+			config: { 
+				mass: 5 + (i * 0.05),
+				tension: 400,
+				friction: 80,
+				precision: 0.001,
+			},
+			from: { 
+				x: -((i%cols) - (cols/2))*70,
+				y: -((i/cols) - (rows/2))*70,
+				opacity: 0,
+			},
+			to: {
+				x: 0,
+				y: 0,
+				opacity: 1,
+				borderRadius: 0,
+			},
 		}),
 	);
+
+	const [constraints, setConstraints] = useState(tangoTsApi.boardState.constraints);
+
+	useEffect(() => {
+		return tangoTsApi.addChangeCallback(boardId, (_oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => {
+			if (completeReplace) {
+				setConstraints(newBoardState.constraints)
+			}
+		})
+	}, [tangoTsApi])
 
 	return (
 		<animated.div
@@ -44,7 +72,7 @@ const TangoRiveBoard = ({
 				</animated.div>
 			))}
 
-			{tangoTsApi.boardState.constraints.map((constraint, i) => {
+			{constraints.map((constraint, i) => {
 				const pxcell = 64;
 				const basex = (-tangoTsApi.boardState.columns / 2) * pxcell;
 				const basey = (-tangoTsApi.boardState.rows / 2) * pxcell;
