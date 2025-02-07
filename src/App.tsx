@@ -30,15 +30,13 @@ function App() {
 				<div className="bg-white my-6 rounded-md place-self-center p-6 max-w-sm shadow-xl">
 					<h3 className="text-xl text-secondary mb-4">How to play</h3>
 					<ul>
-						{/* <li>Click a cell to change it into a <span><svg /></></span></li> */}
 						<li>Click a tile to change it into a <SunIcon className="icon"/> or a <MoonIcon className="icon"/>.</li>
 						<li>There cannot be more than 2 <SunIcon className="icon"/> or <MoonIcon className="icon"/> next to each other vertically or horizontally.</li>
 						<li>There must be exactly 3 <SunIcon className="icon"/> and 3 <MoonIcon className="icon"/> in every row and column.</li>
 						<li>Tiles with an × between them must be opposite icons.</li>
 						<li>Tiles with an = between them must be equivalent icons.</li>
 						<li>There is exactly one solution to completely fill the board.</li>
-						{/* <li>Every row must have the same number of suns and moons.</li>
-						<li>Click a cell to change it into a <img src="sun.svg" alt="Sun icon" className="inline-block h-5 w-5 mr-2" /> or a <img src="moon.svg" alt="Moon icon" className="inline-block h-5 w-5 mr-2" /></li> */}
+						<li>Click a cell to change it into a <img src="sun.svg" alt="Sun icon" className="inline-block h-5 w-5 mr-2" /> or a <img src="moon.svg" alt="Moon icon" className="inline-block h-5 w-5 mr-2" /></li>
 					</ul>
 				</div>
 
