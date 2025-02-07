@@ -16,6 +16,7 @@
     "@rive-app/canvas-lite": "^2.25.7",
     "@rive-app/react-canvas": "^4.17.10",
     "@tailwindcss/vite": "^4.0.0",
+    "posthog-js": "^1.215.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-transition-group": "^4.4.5",
