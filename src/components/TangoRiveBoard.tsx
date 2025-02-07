@@ -22,9 +22,9 @@ const TangoRiveBoard = ({
 		tangoTsApi.boardState.tiles.length,
 		(i) => ({
 			config: { 
-				mass: 5 + (i * 0.05),
-				tension: 400,
-				friction: 80,
+				mass: 4 + (i * 0.05),
+				tension: 1000,
+				friction: 120,
 				precision: 0.001,
 			},
 			from: { 

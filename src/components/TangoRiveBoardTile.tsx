@@ -59,8 +59,7 @@ export const TangoRiveBoardTile = ({
 			autoplay: true,
 			stateMachines: 'StateMachine',
 			onLoad: () => {
-				setTimeout(() => {
-					setShowing(true);
+				// setTimeout(() => {
 					tangoTsApi.addChangeCallback( tileId, ( _oldBoardState: BoardState, _newBoardState: BoardState, completeReplace?: boolean) => {
 						if (completeReplace) {
 							r.stateMachineInputs('StateMachine').find(i => i.name === "isMoon")!.value = false;
@@ -72,9 +71,14 @@ export const TangoRiveBoardTile = ({
 							updateTile(r);
 						}
 					});
-					r.resizeDrawingSurfaceToCanvas();
+					setTimeout(() => {
+						r.resizeDrawingSurfaceToCanvas();
+						setTimeout(() => {
+							setShowing(true);
+						}, 200)
+					}, 1000)
 					updateTile(r);
-				}, 500)
+				// }, 500)
 			},
 		})
 		return () => {
