@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { BoardState, ConstraintType } from "../types/types";
 import TangoTS from "../utils/TangoTS";
 import { TangoRiveBoardTile } from "./TangoRiveBoardTile";
-import { animated, AnimatedComponent, useSprings } from "@react-spring/web";
+import { animated, useSprings } from "@react-spring/web";
 import { TangoRiveConstraint } from "./TangoRiveConstraint";
 
 const TangoRiveBoard = ({
