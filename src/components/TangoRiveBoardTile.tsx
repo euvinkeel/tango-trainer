@@ -59,7 +59,7 @@ export const TangoRiveBoardTile = ({
 				// r.resizeDrawingSurfaceToCanvas();
 				setTimeout(() => {
 					setShowing(true);
-					tangoTsApi.addChangeCallback( tileId, ( oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => {
+					tangoTsApi.addChangeCallback( tileId, ( _oldBoardState: BoardState, _newBoardState: BoardState, _completeReplace?: boolean) => {
 						updateTile(r);
 					});
 					r.resizeDrawingSurfaceToCanvas();

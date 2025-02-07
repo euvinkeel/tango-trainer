@@ -1,10 +1,10 @@
-import { animated, useSpring, useTransition } from "@react-spring/web"
+import { animated, useTransition } from "@react-spring/web"
 
 const Test = () => {
 
     const transitions = useTransition([1,2,3], {
-        from: ({x}) => ({x: 10}),
-        enter: ({x}) => ({x: 100}),
+        from: () => ({x: 10}),
+        enter: () => ({x: 100}),
     })
 
     return <>

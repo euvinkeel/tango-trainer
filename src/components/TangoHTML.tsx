@@ -12,7 +12,7 @@ const TangoHTML = ({ tangoHTMLId, tangoTsApi }: { tangoHTMLId: string, tangoTsAp
 	const [myWinFlag, setMyWinFlag] = useState(false);
 
 	useEffect(() => {
-		return tangoTsApi.addChangeCallback(tangoHTMLId, (oldBoardState: BoardState, newBoardState: BoardState) => {
+		return tangoTsApi.addChangeCallback(tangoHTMLId, (_oldBoardState: BoardState, newBoardState: BoardState) => {
 			// console.log("change callback askjdlkasjdlksa");
 			// console.log(tangoTsApi);
 			// console.log(tangoTsApi.isAWinState);

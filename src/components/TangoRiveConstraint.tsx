@@ -1,6 +1,4 @@
-import TangoTS from "../utils/TangoTS";
-import { BoardState, TileIconType } from "../types/types";
-import { Rive, useRive, useStateMachineInput } from "@rive-app/react-canvas";
+import { Rive } from "@rive-app/react-canvas";
 import { useEffect, useRef, useState } from "react";
 import { useSpring, animated } from "@react-spring/web";
 

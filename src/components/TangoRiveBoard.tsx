@@ -17,7 +17,7 @@ const TangoRiveBoard = ({
 
 	const cols = tangoTsApi.boardState.columns;
 	const rows = tangoTsApi.boardState.rows;
-	const [props, api] = useSprings(
+	const [props, _api] = useSprings(
 		tangoTsApi.boardState.tiles.length,
 		(i) => ({
 			config: { 
@@ -72,7 +72,7 @@ const TangoRiveBoard = ({
 				</animated.div>
 			))}
 
-			{constraints.map((constraint, i) => {
+			{constraints.map((constraint) => {
 				const pxcell = 64;
 				const basex = (-tangoTsApi.boardState.columns / 2) * pxcell;
 				const basey = (-tangoTsApi.boardState.rows / 2) * pxcell;

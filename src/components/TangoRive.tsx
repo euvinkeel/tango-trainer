@@ -22,7 +22,7 @@ const TangoRive = ({
 			tangoRiveId,
 			(
 				_oldBoardState: BoardState,
-				newBoardState: BoardState,
+				_newBoardState: BoardState,
 				completeReplace?: boolean
 			) => {
 				// console.log("CHANGE CALLBACK");

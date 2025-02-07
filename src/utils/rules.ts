@@ -1,5 +1,5 @@
 import { Rule, BoardState, TileIconType, ConstraintType, RuleViolation, Coordinate } from "../types/types";
-import { getRows, getColumns, getTileIconCounts, getRowCoordinates, getColumnCoordinates, coordinateToIndex, range, indexToCoordinate, getBoardStateAsString, chooseRandom, createBoardString } from "./utils";
+import { getRows, getColumns, getTileIconCounts, getRowCoordinates, getColumnCoordinates, coordinateToIndex, range, indexToCoordinate, getBoardStateAsString, chooseRandom } from "./utils";
 
 export const getAllViolations = (boardState: BoardState): RuleViolation[] => ruleset.flatMap(rule => rule.getViolations(boardState));
 
@@ -219,7 +219,7 @@ export const ensureBoardIsSolvable = (boardState: BoardState, solution: BoardSta
 		// solve it step by step.
 		// console.log("Solving the board...");
 		const playingBoard = structuredClone(boardState);
-		const playingBoardString = createBoardString(playingBoard);
+		// const playingBoardString = createBoardString(playingBoard);
 		let fillInCoordinates = getSolveableCoordinates(playingBoard);
 		while (fillInCoordinates.length > 0) {
 			for (const [coordinate, iconType] of fillInCoordinates) {

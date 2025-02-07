@@ -8,7 +8,7 @@ import MoonIcon from './assets/moon.svg?react';
 
 function App() {
 
-	const [TTS, setTTS] = useState(() => {
+	const [TTS, _setTTS] = useState(() => {
 		return new TangoTS({
 			// usePresetBoards: true,
 			usePresetBoards: false,
