@@ -7,7 +7,7 @@ export const TangoRiveReset = ({
 }) => {
 
 	const { rive, RiveComponent } = useRive({
-		src: "src/assets/clear.riv",
+		src: "clear.riv",
 		autoplay: true,
 		stateMachines: 'State',
 	})

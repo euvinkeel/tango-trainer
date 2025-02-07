@@ -3,8 +3,8 @@ import { useState } from "react";
 import "./App.css";
 import TangoTS from "./utils/TangoTS";
 import TangoRive from "./components/TangoRive";
-import SunIcon from './assets/sun.svg?react';
-import MoonIcon from './assets/moon.svg?react';
+import SunIcon from './svgs/sun.svg?react';
+import MoonIcon from './svgs/moon.svg?react';
 
 function App() {
 
@@ -27,7 +27,7 @@ function App() {
 
 				<TangoRive tangoRiveId="tangoRive" tangoTsApi={TTS}/>
 
-				<div className="bg-white my-6 rounded-md place-self-center p-6 max-w-sm shadow-xl">
+				<div className="bg-white my-6 rounded-md place-self-center p-6 max-w-md shadow-xl">
 					<h3 className="text-xl text-secondary mb-4">How to play</h3>
 					<ul>
 						<li>Click a tile to change it into a <SunIcon className="icon"/> or a <MoonIcon className="icon"/>.</li>
@@ -36,7 +36,6 @@ function App() {
 						<li>Tiles with an × between them must be opposite icons.</li>
 						<li>Tiles with an = between them must be equivalent icons.</li>
 						<li>There is exactly one solution to completely fill the board.</li>
-						<li>Click a cell to change it into a <img src="sun.svg" alt="Sun icon" className="inline-block h-5 w-5 mr-2" /> or a <img src="moon.svg" alt="Moon icon" className="inline-block h-5 w-5 mr-2" /></li>
 					</ul>
 				</div>
 

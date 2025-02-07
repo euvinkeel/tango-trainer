@@ -7,7 +7,7 @@ export const TangoRiveRegenerate = ({
 }) => {
 
 	const { rive, RiveComponent } = useRive({
-		src: "src/assets/regenerate.riv",
+		src: "regenerate.riv",
 		autoplay: true,
 		stateMachines: 'State',
 	})

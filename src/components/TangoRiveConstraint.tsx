@@ -28,7 +28,7 @@ export const TangoRiveConstraint = ({
 		}
 
 		const r = new Rive({
-			src: "src/assets/constraint.riv",
+			src: "constraint.riv",
 			canvas: canvasRef!.current!,
 			autoplay: true,
 			stateMachines: 'State',

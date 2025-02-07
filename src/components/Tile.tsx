@@ -1,6 +1,6 @@
 // import { useRive, useStateMachineInput } from '@rive-app/react-canvas';
-import Sun from '../assets/sun.svg';
-import Moon from '../assets/moon.svg';
+import Sun from '/sun.svg';
+import Moon from '/moon.svg';
 import { TileIconType, TileState } from '../types/types';
 import { useRef } from 'react';
 
@@ -9,23 +9,7 @@ export const Tile = ({startState={
     locked: false,
     error: false,
 }, onClick}: {startState?: TileState, onClick?: () => void }) => {
-
-    // const { rive, RiveComponent } = useRive({
-    //     src: "/src/assets/sunandmoon.riv",
-    //     artboard: "Tile",
-    //     stateMachines: "StateMachine",
-    //     autoplay: true,
-    // })
-
-    // const isMoon = useStateMachineInput(rive, "StateMachine", "isMoon", startState && startState.iconType == TileIconType.MOON);
-    // const isSun = useStateMachineInput(rive, "StateMachine", "isSun", startState && startState.iconType == TileIconType.SUN);
-    // isSun?.value
-
-    // const change = useStateMachineInput(rive, "StateMachine", "Change");
     const highlightRef = useRef<HTMLButtonElement>(null);
-
-    // console.log(`moon: ${isMoon?.value}, sun: ${isSun?.value}`);
-    // console.log(startState.iconType);
 
     return (
         <div className='tile' style={{

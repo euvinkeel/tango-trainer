@@ -51,7 +51,7 @@ export const TangoRiveBoardTile = ({
 		}
 
 		const r = new Rive({
-			src: "src/assets/tile.riv",
+			src: "tile.riv",
 			canvas: canvasRef!.current!,
 			autoplay: true,
 			stateMachines: 'StateMachine',

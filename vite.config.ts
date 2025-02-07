@@ -11,4 +11,5 @@ export default defineConfig({
     svgr(),
   ],
   base: '/tango-trainer/',
+  publicDir: './public',
 })
