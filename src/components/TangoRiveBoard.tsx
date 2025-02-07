@@ -44,9 +44,8 @@ const TangoRiveBoard = ({
 	const [constraints, setConstraints] = useState(tangoTsApi.boardState.constraints);
 
 	useEffect(() => {
-		const handleResize = (ev: any) => {
-			console.log('Resized!', ev);
-			if (window.innerWidth > 400) {
+		const handleResize = () => {
+			if (window.innerWidth > 450) {
 				boardRef.current!.style.scale = `1`;
 			} else {
 				const newScale = window.innerWidth / 450;
@@ -59,11 +58,11 @@ const TangoRiveBoard = ({
 			}
 		})
 		window.addEventListener('resize', handleResize);
+		handleResize();
 		return () => {
 			window.removeEventListener('resize', handleResize);
 			removeCallback();
 		};
-
 	}, [tangoTsApi])
 
 	return (
@@ -106,12 +105,13 @@ const TangoRiveBoard = ({
 				finalx += midcol * pxcell + pxcell / 2;
 				finaly += midrow * pxcell + pxcell / 2;
 
+				const constraintKey = `${constraint.coordinate1.row}${constraint.coordinate1.column}${constraint.coordinate2.row}${constraint.coordinate2.column}${constraint.constraintType}.`;
 				if (constraint.constraintType === ConstraintType.EQUAL) {
-					return <TangoRiveConstraint isEquals={true} offsetX={finalx} offsetY={finaly}/>
+					return <TangoRiveConstraint key={constraintKey} isEquals={true} offsetX={finalx} offsetY={finaly}/>
 				} else if (
 					constraint.constraintType === ConstraintType.OPPOSITE
 				) {
-					return <TangoRiveConstraint isEquals={false} offsetX={finalx} offsetY={finaly}/>
+					return <TangoRiveConstraint key={constraintKey} isEquals={false} offsetX={finalx} offsetY={finaly}/>
 				} else {
 					throw "Invalid constraint type";
 				}

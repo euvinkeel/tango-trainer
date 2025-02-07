@@ -75,6 +75,10 @@ const TangoRive = ({
 							resetTimer();
 							tangoTsApi.regenerateBoard();
 						}}
+						onLongPress={() => {
+							resetTimer();
+							tangoTsApi.regenerateBoard(true);
+						}}
 					/>
 					<TangoRiveReset
 						onClick={() => {

@@ -30,6 +30,9 @@ export const TangoRiveBoardTile = ({
 		const updateTile = (r: Rive) => {
 			const newMoon = tangoTsApi.boardState.tiles[boardIndex].iconType === TileIconType.MOON;
 			const newSun = tangoTsApi.boardState.tiles[boardIndex].iconType === TileIconType.SUN;
+			if (!r.stateMachineInputs('StateMachine')) {
+				return;
+			}
 			r.stateMachineInputs('StateMachine').find(i => i.name === "isMoon")!.value = newMoon;
 			r.stateMachineInputs('StateMachine').find(i => i.name === "isSun")!.value = newSun;
 
@@ -56,11 +59,18 @@ export const TangoRiveBoardTile = ({
 			autoplay: true,
 			stateMachines: 'StateMachine',
 			onLoad: () => {
-				// r.resizeDrawingSurfaceToCanvas();
 				setTimeout(() => {
 					setShowing(true);
-					tangoTsApi.addChangeCallback( tileId, ( _oldBoardState: BoardState, _newBoardState: BoardState, _completeReplace?: boolean) => {
-						updateTile(r);
+					tangoTsApi.addChangeCallback( tileId, ( _oldBoardState: BoardState, _newBoardState: BoardState, completeReplace?: boolean) => {
+						if (completeReplace) {
+							r.stateMachineInputs('StateMachine').find(i => i.name === "isMoon")!.value = false;
+							r.stateMachineInputs('StateMachine').find(i => i.name === "isSun")!.value = false;
+							setTimeout(() => {
+								updateTile(r);
+							}, 500)
+						} else {
+							updateTile(r);
+						}
 					});
 					r.resizeDrawingSurfaceToCanvas();
 					updateTile(r);

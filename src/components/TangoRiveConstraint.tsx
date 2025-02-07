@@ -24,7 +24,9 @@ export const TangoRiveConstraint = ({
 	useEffect(() => {
 
 		const updateTile = (r: Rive) => {
-			r.stateMachineInputs('State').find(i => i.name === "isEquals")!.value = isEquals;
+			if (r.stateMachineInputs('State')) {
+				r.stateMachineInputs('State').find(i => i.name === "isEquals")!.value = isEquals;
+			}
 		}
 
 		const r = new Rive({
@@ -34,17 +36,19 @@ export const TangoRiveConstraint = ({
 			stateMachines: 'State',
 			onLoad: () => {
 				r.resizeDrawingSurfaceToCanvas();
-				r.stateMachineInputs('State').find(i => i.name === "isEquals")!.value = isEquals;
+				updateTile(r);
 				setTimeout(() => {
 					setShowing(true);
 					updateTile(r);
 				}, 200)
 			},
 		})
+
 		return () => {
 			r.cleanup();
 		}
-	})
+
+	}, []);
 
 	return (
 		// <div 

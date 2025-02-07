@@ -103,12 +103,14 @@ export default class TangoTS {
 		this._changeCallback(oldBoardState, newBoardState, false);
 	}
 
-	public regenerateBoard() {
+	public regenerateBoard(forceNewGeneration?: boolean) {
 		const oldBoardState = this._boardState;
 
-		if (this._config.usePresetBoards === true) {
+		if (this._config.usePresetBoards === true && forceNewGeneration !== true) {
+			console.log("Reusing!");
 			this._boardState = deserBoardString(chooseRandom(presetBoards));
 		} else {
+			console.log("Forcing new generation!");
 			this._boardState = generateRandomValidBoardState(
 				this._boardState.rows,
 				this._boardState.columns

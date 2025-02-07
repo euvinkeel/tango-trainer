@@ -11,8 +11,7 @@ function App() {
 
 	const [TTS, _setTTS] = useState(() => {
 		return new TangoTS({
-			// usePresetBoards: true,
-			usePresetBoards: false,
+			usePresetBoards: true,
 		})
 	})
 	
@@ -58,7 +57,7 @@ function App() {
 					</div>
 				</div>
 
-				<footer className="mt-20 w-full h-40 p-8 text-wrap font-body font-normal text-secondary backdrop-blur-xs place-self-center flex justify-center">
+				<footer className="mt-20 w-full h-fit p-8 text-wrap font-body font-normal text-secondary backdrop-blur-xs place-self-center flex justify-center">
 					<p className="text-sm max-w-lg">
 						This is a fan-made, non-commercial project created solely for personal and educational purposes.
 						It is not affiliated with or endorsed by LinkedIn Corporation, and all rights belong to their respective owners.
