@@ -3,6 +3,7 @@ import { BoardState, ConstraintType } from "../types/types";
 import TangoTS from "../utils/TangoTS";
 import { TangoRiveBoardTile } from "./TangoRiveBoardTile";
 import { animated, useSprings } from "@react-spring/web";
+import { TangoRiveConstraint } from "./TangoRiveConstraint";
 
 const TangoRiveBoard = ({
 	boardId,
@@ -51,11 +52,10 @@ const TangoRiveBoard = ({
 
 	return (
 		<animated.div
-			className="grid"
+			className="grid bg-egg-dark"
 			style={{
 				gridTemplateColumns: `repeat(${tangoTsApi.boardState.columns}, 60px)`,
 				gridTemplateRows: `repeat(${tangoTsApi.boardState.rows}, 60px)`,
-				backgroundColor: `rgb(150, 150, 150)`,
 			}}
 		>
 			{tangoTsApi.boardState.tiles.map((_, i) => (
@@ -90,37 +90,11 @@ const TangoRiveBoard = ({
 				finaly += midrow * pxcell + pxcell / 2;
 
 				if (constraint.constraintType === ConstraintType.EQUAL) {
-					return (
-						<div
-							className="constraint text-xl text-center"
-							key={i}
-							style={
-								{
-									transform: `translateX(${finalx}px) translateY(${finaly}px)`,
-									userSelect: "none",
-								} as React.CSSProperties
-							}
-						>
-							=
-						</div>
-					);
+					return <TangoRiveConstraint isEquals={true} offsetX={finalx} offsetY={finaly}/>
 				} else if (
 					constraint.constraintType === ConstraintType.OPPOSITE
 				) {
-					return (
-						<div
-							className="constraint text-xl text-center"
-							key={i}
-							style={
-								{
-									transform: `translateX(${finalx}px) translateY(${finaly}px)`,
-									userSelect: "none",
-								} as React.CSSProperties
-							}
-						>
-							x
-						</div>
-					);
+					return <TangoRiveConstraint isEquals={false} offsetX={finalx} offsetY={finaly}/>
 				} else {
 					throw "Invalid constraint type";
 				}
