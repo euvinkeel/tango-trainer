@@ -5,6 +5,7 @@ import TangoTS from "./utils/TangoTS";
 import TangoRive from "./components/TangoRive";
 import SunIcon from './svgs/sun.svg?react';
 import MoonIcon from './svgs/moon.svg?react';
+import { TwitterLogoIcon, LinkedInLogoIcon, GitHubLogoIcon } from "@radix-ui/react-icons";
 
 function App() {
 
@@ -37,6 +38,20 @@ function App() {
 						<li>Tiles with an = between them must be equivalent icons.</li>
 						<li>There is exactly one solution to completely fill the board.</li>
 					</ul>
+				</div>
+
+				<a className="text-secondary font-body text-xl" href="euvinkeel.github.io">Made by Euvin</a>
+
+				<div className="flex justify-center h-5 gap-2 m-2">
+					<a href="https://x.com/euvin_keel">
+						<TwitterLogoIcon height={30} width={30} />
+					</a>
+					<a href="https://www.linkedin.com/in/euvin-k-41887825a/">
+						<LinkedInLogoIcon height={30} width={30} />
+					</a>
+					<a href="https://github.com/euvinkeel/tango-trainer">
+						<GitHubLogoIcon height={30} width={30} />
+					</a>
 				</div>
 
 				<footer className="my-20 text-sm max-w-md font-body font-normal text-secondary backdrop-blur-xs place-self-center">
