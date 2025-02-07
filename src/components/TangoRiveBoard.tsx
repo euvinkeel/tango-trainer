@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BoardState, ConstraintType } from "../types/types";
 import TangoTS from "../utils/TangoTS";
 import { TangoRiveBoardTile } from "./TangoRiveBoardTile";
-import { animated, useSprings } from "@react-spring/web";
+import { animated, AnimatedComponent, useSprings } from "@react-spring/web";
 import { TangoRiveConstraint } from "./TangoRiveConstraint";
 
 const TangoRiveBoard = ({
@@ -17,6 +17,7 @@ const TangoRiveBoard = ({
 
 	const cols = tangoTsApi.boardState.columns;
 	const rows = tangoTsApi.boardState.rows;
+	const boardRef = useRef<HTMLDivElement>(null);
 	const [props, _api] = useSprings(
 		tangoTsApi.boardState.tiles.length,
 		(i) => ({
@@ -43,16 +44,32 @@ const TangoRiveBoard = ({
 	const [constraints, setConstraints] = useState(tangoTsApi.boardState.constraints);
 
 	useEffect(() => {
-		return tangoTsApi.addChangeCallback(boardId, (_oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => {
+		const handleResize = (ev: any) => {
+			console.log('Resized!', ev);
+			if (window.innerWidth > 400) {
+				boardRef.current!.style.scale = `1`;
+			} else {
+				const newScale = window.innerWidth / 450;
+				boardRef.current!.style.scale = `${newScale}`;
+			}
+		};
+		const removeCallback = tangoTsApi.addChangeCallback(boardId, (_oldBoardState: BoardState, newBoardState: BoardState, completeReplace?: boolean) => {
 			if (completeReplace) {
 				setConstraints(newBoardState.constraints)
 			}
 		})
+		window.addEventListener('resize', handleResize);
+		return () => {
+			window.removeEventListener('resize', handleResize);
+			removeCallback();
+		};
+
 	}, [tangoTsApi])
 
 	return (
 		<animated.div
-			className="grid bg-egg-dark"
+			ref={boardRef}
+			className="grid bg-egg-dark place-self-center"
 			style={{
 				gridTemplateColumns: `repeat(${tangoTsApi.boardState.columns}, 60px)`,
 				gridTemplateRows: `repeat(${tangoTsApi.boardState.rows}, 60px)`,
